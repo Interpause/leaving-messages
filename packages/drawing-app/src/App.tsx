@@ -1,25 +1,19 @@
-import { useState } from 'react'
-import {
-  Box,
-  Editor,
-  StoreSnapshot,
-  TLPageId,
-  TLRecord,
-  Tldraw,
-  TldrawImage,
-} from 'tldraw'
+import { useEffect, useState } from 'react'
+import { Box, Editor, TLPageId, Tldraw, TldrawImage } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { useGlobalState } from './state'
-import { createEmptySnapshot } from './utils'
+import { useUpdate } from './utils'
 
 // There's a guide at the bottom of this file!
 
 export default function TldrawImageExample() {
   const [snap, state] = useGlobalState()
+  const roStore = snap.active.tlstore
+
   const [editor, setEditor] = useState<Editor>()
-  const [snapshot, setSnapshot] = useState<StoreSnapshot<TLRecord>>(
-    createEmptySnapshot(),
-  )
+  const forceUpdate = useUpdate()
+  useEffect(() => (state.func.update = forceUpdate), [forceUpdate, state.func])
+
   const [currentPageId, setCurrentPageId] = useState<TLPageId | undefined>()
   const [showBackground, setShowBackground] = useState(true)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -35,16 +29,13 @@ export default function TldrawImageExample() {
         <button
           style={{ cursor: 'pointer', marginRight: 8 }}
           onClick={() => {
+            setIsEditing(!isEditing)
             if (isEditing) {
               if (!editor) return
               setIsDarkMode(editor.user.getIsDarkMode())
               setShowBackground(editor.getInstanceState().exportBackground)
               setViewportPageBounds(editor.getViewportPageBounds())
               setCurrentPageId(editor.getCurrentPageId())
-              setSnapshot(editor.store.getSnapshot())
-              setIsEditing(false)
-            } else {
-              setIsEditing(true)
             }
           }}
         >
@@ -53,7 +44,9 @@ export default function TldrawImageExample() {
         <input
           type='text'
           value={snap.docId ?? ''}
+          placeholder={snap.active.docId ?? 'Enter docId...'}
           onChange={(e) => (state.docId = e.target.value)}
+          onBlur={() => state.docId !== '' && snap.func.connect()}
         />
         {!isEditing && (
           <>
@@ -73,29 +66,27 @@ export default function TldrawImageExample() {
           </>
         )}
       </div>
+      {/* NOTE: MUST READ roStore (somehow) ELSE RERENDER WON'T TRIGGER. */}
+      <p>State: {roStore.status}</p>
+      {roStore.error ? <p>Error: {roStore.error.message}</p> : ''}
       <div style={{ width: 600, height: 400, marginTop: 15 }}>
         {isEditing ? (
           <Tldraw
-            snapshot={snapshot}
+            /* HAS TO BE THE MUTABLE VERSION (which doesn't trigger rerender...). */
+            store={state.active.tlstore}
             onMount={(editor: Editor) => {
               setEditor(editor)
               editor.updateInstanceState({ isDebugMode: false })
               editor.user.updateUserPreferences({ isDarkMode })
-              if (currentPageId) {
-                editor.setCurrentPage(currentPageId)
-              }
-              if (viewportPageBounds) {
+              if (currentPageId) editor.setCurrentPage(currentPageId)
+              if (viewportPageBounds)
                 editor.zoomToBounds(viewportPageBounds, { inset: 0 })
-              }
             }}
           />
         ) : (
           <TldrawImage
-            //[1]
-            snapshot={snapshot}
-            // [2]
+            snapshot={roStore.store!.getSnapshot()}
             pageId={currentPageId}
-            // [3]
             background={showBackground}
             darkMode={isDarkMode}
             bounds={viewportPageBounds}
@@ -108,19 +99,3 @@ export default function TldrawImageExample() {
     </div>
   )
 }
-
-/*
-
-This example shows how to use the `TldrawImage` component to display a snapshot
-as an image. The example also allows you to toggle between editing the snapshot
-and viewing it.
-
-[1] Pass your snapshot to the `snapshot` prop of the `TldrawImage` component.
-
-[2] You can specify which page to display by using the `pageId` prop. By
-    default, the first page is shown.
-
-[3] You can customize the appearance of the image by passing other props to the
-        `TldrawImage` component. For example, you can toggle the background, set
-        the dark mode, and specify the viewport bounds.
- */

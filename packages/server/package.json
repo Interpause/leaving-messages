@@ -3,10 +3,13 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "server": "bun run --watch src/index.ts",
+    "ysweet": "bunx y-sweet@latest serve",
+    "dev": "conc bun:ysweet bun:server"
   },
   "dependencies": {
     "@elysiajs/swagger": "^1.0.3",
+    "@y-sweet/sdk": "^0.1.0",
     "elysia": "latest"
   },
   "devDependencies": {
