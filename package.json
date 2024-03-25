@@ -1,0 +1,17 @@
+{
+  "name": "leaving-messages",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:drawing": "manypkg run drawing dev",
+    "dev:server": "manypkg run server dev",
+    "dev": "conc \"bun:dev:*\""
+  },
+  "devDependencies": {
+    "@manypkg/cli": "^0.21.3",
+    "concurrently": "^8.2.2",
+    "prettier": "^3.2.5"
+  }
+}
