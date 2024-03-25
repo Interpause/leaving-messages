@@ -9,12 +9,17 @@ import {
   TldrawImage,
 } from 'tldraw'
 import 'tldraw/tldraw.css'
+import { useGlobalState } from './state'
+import { createEmptySnapshot } from './utils'
 
 // There's a guide at the bottom of this file!
 
 export default function TldrawImageExample() {
+  const [snap, state] = useGlobalState()
   const [editor, setEditor] = useState<Editor>()
-  const [snapshot, setSnapshot] = useState<StoreSnapshot<TLRecord>>()
+  const [snapshot, setSnapshot] = useState<StoreSnapshot<TLRecord>>(
+    createEmptySnapshot(),
+  )
   const [currentPageId, setCurrentPageId] = useState<TLPageId | undefined>()
   const [showBackground, setShowBackground] = useState(true)
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -45,6 +50,11 @@ export default function TldrawImageExample() {
         >
           {isEditing ? '✓ Save drawing' : '✎ Edit drawing'}
         </button>
+        <input
+          type='text'
+          value={snap.docId ?? ''}
+          onChange={(e) => (state.docId = e.target.value)}
+        />
         {!isEditing && (
           <>
             <label htmlFor='format' style={{ marginRight: 8 }}>
@@ -79,7 +89,7 @@ export default function TldrawImageExample() {
               }
             }}
           />
-        ) : snapshot ? (
+        ) : (
           <TldrawImage
             //[1]
             snapshot={snapshot}
@@ -93,8 +103,6 @@ export default function TldrawImageExample() {
             scale={1}
             format={format}
           />
-        ) : (
-          <p>No drawing yet!</p>
         )}
       </div>
     </div>
