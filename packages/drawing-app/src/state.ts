@@ -16,7 +16,7 @@ import * as Y from 'yjs'
 import { freshTLStore, getUrl } from './utils'
 
 const QUERY_PARAM_DOC = 'doc'
-const BACKEND_URL = 'http://localhost:3000'
+const BACKEND_URL = ''
 
 export interface Callbacks {
   connect: () => Promise<void>

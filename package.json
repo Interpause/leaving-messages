@@ -7,7 +7,9 @@
   "scripts": {
     "dev:drawing": "manypkg run drawing dev",
     "dev:server": "manypkg run server dev",
-    "dev": "conc \"bun:dev:*\""
+    "build:drawing": "manypkg run drawing build",
+    "dev": "conc \"bun:dev:*\"",
+    "serve": "conc bun:build:drawing bun:dev:server"
   },
   "devDependencies": {
     "@manypkg/cli": "^0.21.3",
