@@ -24,10 +24,10 @@ export default function TldrawImageExample() {
   const [format, setFormat] = useState<'svg' | 'png'>('svg')
 
   return (
-    <div style={{ padding: 30 }}>
+    <div className='fixed inset-0 overflow-hidden flex flex-col'>
       <div>
         <button
-          style={{ cursor: 'pointer', marginRight: 8 }}
+          className='mr-2'
           onClick={() => {
             setIsEditing(!isEditing)
             if (isEditing) {
@@ -39,22 +39,25 @@ export default function TldrawImageExample() {
             }
           }}
         >
-          {isEditing ? '✓ Save drawing' : '✎ Edit drawing'}
+          {isEditing ? '✓ Save' : '✎ Edit'}
         </button>
         <input
           type='text'
+          className='mr-2'
           value={snap.docId ?? ''}
           placeholder={snap.active.docId ?? 'Enter docId...'}
           onChange={(e) => (state.docId = e.target.value)}
           onBlur={() => state.docId !== '' && snap.func.connect()}
         />
+        <br />
         {!isEditing && (
           <>
-            <label htmlFor='format' style={{ marginRight: 8 }}>
+            <label htmlFor='format' className='mr-2'>
               Format
             </label>
             <select
               name='format'
+              className='px-2 mr-2'
               value={format}
               onChange={(e) => {
                 setFormat(e.currentTarget.value as 'svg' | 'png')
@@ -65,11 +68,16 @@ export default function TldrawImageExample() {
             </select>
           </>
         )}
+        {/* NOTE: MUST READ roStore (somehow) ELSE RERENDER WON'T TRIGGER. */}
+
+        {roStore.error ? (
+          <span>Error: {roStore.error.message}</span>
+        ) : (
+          <span>State: {roStore.status}</span>
+        )}
       </div>
-      {/* NOTE: MUST READ roStore (somehow) ELSE RERENDER WON'T TRIGGER. */}
-      <p>State: {roStore.status}</p>
-      {roStore.error ? <p>Error: {roStore.error.message}</p> : ''}
-      <div style={{ width: 600, height: 400, marginTop: 15 }}>
+
+      <div className=' flex-grow'>
         {isEditing ? (
           <Tldraw
             /* HAS TO BE THE MUTABLE VERSION (which doesn't trigger rerender...). */
