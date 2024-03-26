@@ -34,7 +34,12 @@ export default function TldrawImageExample() {
         padding: 0,
         darkMode: isDarkMode,
       })
-      if (!svg) return
+      if (!svg) {
+        const svgHolder = svgHolderRef.current
+        if (!svgHolder) return
+        while (svgHolder.firstChild) svgHolder.removeChild(svgHolder.firstChild)
+        return
+      }
 
       animHandle !== null && cancelAnimationFrame(animHandle)
       animHandle = requestAnimationFrame(() => {
