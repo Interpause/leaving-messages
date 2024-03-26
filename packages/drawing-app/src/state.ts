@@ -20,8 +20,6 @@ const BACKEND_URL = ''
 
 export interface Callbacks {
   connect: () => Promise<void>
-  /** Force GUI update. */
-  update: () => void
 }
 
 export interface ActiveState {
@@ -39,7 +37,7 @@ export interface GlobalState {
 
 export const globalState = proxy<GlobalState>({
   active: { tlstore: ref(freshTLStore()) },
-  func: { connect: connectYSweet, update: () => {} },
+  func: { connect: connectYSweet },
 })
 
 async function connectYSweet() {
@@ -114,13 +112,9 @@ function setupSyncHandlers(tlstore: TLStore, ystate: YState) {
     })
 
     tlstore.mergeRemoteChanges(() => {
-      tlstore.remove(removeArr)
-      tlstore.put(putArr)
+      removeArr.length > 0 && tlstore.remove(removeArr)
+      putArr.length > 0 && tlstore.put(putArr)
     })
-
-    // TODO: This is the only impure part of the function.
-    // NOTE: As we "untracked" TLStore via `ref()`, force updates for remote changes:
-    if (removeArr || putArr) globalState.func.update()
   }
   ystore.on('change', handleY2TL)
   const unsubY2TL = () => ystore.off('change', handleY2TL)
@@ -128,10 +122,10 @@ function setupSyncHandlers(tlstore: TLStore, ystate: YState) {
   /* Verify schema version compatibility. */
   const localSchema = tlstore.schema.serialize()
   const handleMeta = () => {
-    const serverSchema = meta.get('schema')
-    if (!serverSchema) throw new Error('Document metadata corrupted!')
+    const remoteSchema = meta.get('schema')
+    if (!remoteSchema) throw new Error('Document metadata corrupted!')
 
-    if (compareSchemas(serverSchema, localSchema) > 0)
+    if (compareSchemas(remoteSchema, localSchema) > 0)
       throw new Error('Client is outdated, please update!')
   }
   meta.observe(handleMeta)
@@ -158,12 +152,12 @@ function syncInitial(tlstore: TLStore, ystate: YState) {
   }
 
   /* Sync initial state to TLStore. */
-  const serverSchema = meta.get('schema')
-  if (!serverSchema) throw new Error('Document metadata corrupted!')
+  const remoteSchema = meta.get('schema')
+  if (!remoteSchema) throw new Error('Document metadata corrupted!')
 
   const records = ystore.yarray.toJSON().map(({ val }) => val)
   const migrated = tlstore.schema.migrateStoreSnapshot({
-    schema: serverSchema,
+    schema: remoteSchema,
     store: Object.fromEntries(records.map((r) => [r.id, r])),
   })
   // NOTE: This shouldn't be possible given the schema check above.
