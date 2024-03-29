@@ -220,8 +220,16 @@ export function initState() {
       while (!conn.wsconnected && Object.is(token, active.token)) {
         const n = conn.wsUnsuccessfulReconnects
         console.log('Y Sweet Connection Attempt:', n)
-        const s = await new Promise((next) => conn.once('status', next))
+        const s = await toast.promise(
+          new Promise((next) => conn.once('status', next)),
+          {
+            loading: 'Connecting to syncher...',
+            success: 'Syncher connected!',
+            error: 'Failed to connect!',
+          },
+        )
         console.log('Y Sweet Connection Status:', s)
+        toast(`Syncher Status: ${JSON.stringify(s)}`)
       }
 
       if (!Object.is(token, active.token)) {
@@ -230,8 +238,16 @@ export function initState() {
       }
 
       console.log(`Waiting for Y Sync...`)
-      const s = await new Promise((next) => conn.once('synced', next))
+      const s = await toast.promise(
+        new Promise((next) => conn.once('synced', next)),
+        {
+          loading: 'Synching...',
+          success: 'Synched!',
+          error: 'Failed to sync!',
+        },
+      )
       console.log('Y Sync Status:', s)
+      toast(`Sync Status: ${JSON.stringify(s)}`)
     }
 
     active.tlstore = ref(freshTLStore())
