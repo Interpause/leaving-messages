@@ -10,6 +10,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <GlobalStateProvider>
       <App />
     </GlobalStateProvider>
-    <Toaster />
+    <Toaster position='bottom-right' />
   </React.StrictMode>,
 )

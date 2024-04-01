@@ -6,7 +6,7 @@ import { proxy, ref, useSnapshot } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import { QUERY_PARAM_DOC } from './env'
 import { connectYSweet, initSync } from './sync'
-import { freshTLStore, getUrl } from './utils'
+import { freshTLStore, getUrl, updateUrlBar } from './utils'
 
 export interface Callbacks {
   connect: () => Promise<void>
@@ -26,15 +26,9 @@ export interface GlobalState {
   func: Callbacks
 }
 
-const GlobalStateContext = createContext<GlobalState>(
-  null as unknown as GlobalState,
-)
+const GlobalStateContext = createContext<GlobalState | null>(null)
 
-export function GlobalStateProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export function GlobalStateProvider({ children }: React.PropsWithChildren) {
   const state: GlobalState = useRef(
     proxy({
       active: { tlstore: ref(freshTLStore()) },
@@ -43,22 +37,12 @@ export function GlobalStateProvider({
   ).current
 
   useEffect(() => {
-    subscribeKey(state, 'docId', (docId) => {
-      const url = getUrl()
-      const oldId = url.searchParams.get(QUERY_PARAM_DOC) ?? undefined
-
-      if (oldId === docId) return
-
-      if (!docId) url.searchParams.delete(QUERY_PARAM_DOC)
-      else url.searchParams.set(QUERY_PARAM_DOC, docId)
-
-      window.history.replaceState({}, '', url.toString())
-    })
-
     state.docId = getUrl().searchParams.get(QUERY_PARAM_DOC) ?? undefined
-
+    subscribeKey(state, 'docId', updateUrlBar)
     initSync(state)
+    if (state.docId) state.func.connect()
   }, [state])
+
   return (
     <GlobalStateContext.Provider value={state}>
       {children}
@@ -68,5 +52,6 @@ export function GlobalStateProvider({
 
 export const useGlobalState = () => {
   const state = useContext(GlobalStateContext)
+  if (!state) throw new Error('useGlobalState missing context.')
   return [useSnapshot(state), state] as const
 }

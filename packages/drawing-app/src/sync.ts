@@ -234,6 +234,4 @@ export function initSync(state: GlobalState) {
       cleanup()
     }
   })
-
-  if (state.docId) state.func.connect()
 }
