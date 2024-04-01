@@ -1,19 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
-import { Box, Editor, TLPageId, Tldraw } from 'tldraw'
+import { Box, Editor, Tldraw } from 'tldraw'
 import 'tldraw/tldraw.css'
+import { DARK_MODE } from './env'
 import { useGlobalState } from './state'
 
-// There's a guide at the bottom of this file!
+// TODO: Glitch with TLDraw where any update on the component (i.e., classname changing)
+// will cause dark mode to reset (even if TLDraw itself thinks its on). No bug report yet.
 
-export default function TldrawImageExample() {
+export default function App() {
   const [snap, state] = useGlobalState()
   const roStore = snap.active.tlstore
 
   const [editor, setEditor] = useState<Editor>()
 
-  const [currentPageId, setCurrentPageId] = useState<TLPageId | undefined>()
-  const [showBackground, setShowBackground] = useState(true)
-  const [isDarkMode, setIsDarkMode] = useState(false)
   const [viewportPageBounds, setViewportPageBounds] = useState(
     new Box(0, 0, 600, 400),
   )
@@ -30,9 +29,9 @@ export default function TldrawImageExample() {
       const svg = await editor.getSvg([...shapeIds], {
         bounds: viewportPageBounds,
         scale: 1,
-        background: showBackground,
+        background: true,
         padding: 0,
-        darkMode: isDarkMode,
+        darkMode: DARK_MODE,
       })
       if (!svg) {
         const svgHolder = svgHolderRef.current
@@ -60,22 +59,12 @@ export default function TldrawImageExample() {
       source: 'remote',
       scope: 'document',
     })
-  }, [
-    currentPageId,
-    editor,
-    isDarkMode,
-    isEditing,
-    showBackground,
-    viewportPageBounds,
-  ])
+  }, [editor, isEditing, viewportPageBounds])
 
+  // Set canvas properties for image preview.
   useEffect(() => {
-    if (!editor) return
-    if (isEditing) return
-    setIsDarkMode(editor.user.getIsDarkMode())
-    setShowBackground(editor.getInstanceState().exportBackground)
+    if (!editor || isEditing) return
     setViewportPageBounds(editor.getViewportPageBounds())
-    setCurrentPageId(editor.getCurrentPageId())
   }, [editor, isEditing])
 
   return (
@@ -101,20 +90,19 @@ export default function TldrawImageExample() {
         )}
       </div>
 
-      <div className='relative flex-grow'>
+      <div
+        className={`relative flex-grow overflow-clip ${isEditing ? '' : 'hidden'}`}
+      >
         <Tldraw
           /* HAS TO BE THE MUTABLE VERSION (which doesn't trigger rerender...). */
           store={state.active.tlstore}
           /* NOTE: convenient to use this editor rather than create one for preview. */
-          className={`absolute inset-0 ${
-            isEditing ? '' : 'opacity-0 pointer-events-none -z-10'
-          }`}
+          className='absolute inset-0'
           onMount={(editor: Editor) => {
-            editor.updateInstanceState({ isDebugMode: false })
-            editor.user.updateUserPreferences({ isDarkMode })
-            if (currentPageId) editor.setCurrentPage(currentPageId)
+            editor.updateInstanceState({ isDebugMode: true })
             if (viewportPageBounds)
               editor.zoomToBounds(viewportPageBounds, { inset: 0 })
+            editor.user.updateUserPreferences({ isDarkMode: DARK_MODE })
             setEditor(editor)
           }}
         />

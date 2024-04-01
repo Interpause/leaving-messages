@@ -13,10 +13,8 @@ import { proxy, ref, useSnapshot } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import { YKeyValue } from 'y-utility/y-keyvalue'
 import * as Y from 'yjs'
+import { BACKEND_URL, QUERY_PARAM_DOC } from './env'
 import { freshTLStore, getUrl } from './utils'
-
-const QUERY_PARAM_DOC = 'doc'
-const BACKEND_URL = ''
 
 export interface Callbacks {
   connect: () => Promise<void>
