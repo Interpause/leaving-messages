@@ -217,12 +217,25 @@ export function initSync(state: GlobalState) {
     })
 
     const handleDisconnect = ({ status }: { status: string }) => {
-      if (status === 'disconnected')
+      if (status === 'disconnected') {
+        toast.error('Disconnected!')
         active.tlstore = ref({
           status: 'synced-remote',
           connectionStatus: 'offline',
           store: tlstore,
         })
+      } else if (status === 'connecting') {
+        toast.dismiss()
+        toast.loading('Reconnecting...')
+      } else if (status === 'connected') {
+        toast.dismiss()
+        toast.success('Reconnected!')
+        active.tlstore = ref({
+          status: 'synced-remote',
+          connectionStatus: 'online',
+          store: tlstore,
+        })
+      }
     }
     conn.on('status', handleDisconnect)
     const unsubDisconnect = () => conn.off('status', handleDisconnect)

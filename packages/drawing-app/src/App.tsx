@@ -32,9 +32,6 @@ export default function App() {
   return (
     <div className='fixed inset-0 overflow-hidden flex flex-col'>
       <div className='text-center'>
-        <button className='mr-2' onClick={() => setIsEditing(!isEditing)}>
-          {isEditing ? '✓ Save' : '✎ Edit'}
-        </button>
         <input
           type='text'
           className='mr-2'
@@ -43,12 +40,19 @@ export default function App() {
           onChange={(e) => (state.docId = e.target.value)}
           onBlur={() => state.docId !== '' && snap.func.connect()}
         />
-        <br />
+        <button className='mr-2' onClick={() => setIsEditing(!isEditing)}>
+          {isEditing ? '✓ Save' : '✎ Edit'}
+        </button>
         {/* NOTE: MUST READ roStore (somehow) ELSE RERENDER WON'T TRIGGER. */}
         {roStore.error ? (
           <span>Error: {roStore.error.message}</span>
         ) : (
-          <span>State: {roStore.status}</span>
+          <span>
+            State:{' '}
+            {roStore.status === 'synced-remote'
+              ? roStore.connectionStatus
+              : roStore.status}
+          </span>
         )}
       </div>
 
