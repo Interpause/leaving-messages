@@ -10,11 +10,11 @@ import { ref } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import { YKeyValue } from 'y-utility/y-keyvalue'
 import * as Y from 'yjs'
+import { GlobalState } from './StateContext'
 import { BACKEND_URL } from './env'
-import { GlobalState } from './state'
 import { freshTLStore } from './utils'
 
-interface YState {
+export interface YState {
   ydoc: Y.Doc
   ystore: YKeyValue<TLRecord>
   meta: Y.Map<SerializedSchema>
