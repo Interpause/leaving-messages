@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react'
 import {
   DefaultStylePanel,
+  DefaultToolbar,
+  DrawToolbarItem,
   Editor,
-  HTMLContainer,
+  EraserToolbarItem,
+  HandToolbarItem,
   Tldraw,
   TldrawUiButton,
 } from 'tldraw'
@@ -24,7 +27,7 @@ function CustomSharePanel() {
   return (
     <DefaultStylePanel>
       <div className='p-2'>
-        <p>{'Room: ' + snap.docId ?? ''}</p>
+        <p>{'Room: ' + (snap.docId ?? '')}</p>
         <p>
           {'Status: ' +
             (roStore.error
@@ -35,6 +38,16 @@ function CustomSharePanel() {
         </p>
       </div>
     </DefaultStylePanel>
+  )
+}
+
+function CustomToolbar() {
+  return (
+    <DefaultToolbar>
+      <HandToolbarItem />
+      <DrawToolbarItem />
+      <EraserToolbarItem />
+    </DefaultToolbar>
   )
 }
 
@@ -98,7 +111,7 @@ export default function App() {
     if (!editor || !editing) return
     const bounds = editor.getShapePageBounds(FRAME_ID)
     if (!bounds) return
-    editor.zoomToBounds(bounds, { duration: 200 })
+    editor.zoomToBounds(bounds, { duration: 200, inset: 50 })
   }, [editor, editing])
 
   return (
@@ -115,12 +128,13 @@ export default function App() {
             className='absolute inset-0'
             /* NOTE: convenient to use this editor rather than create one for preview. */
             onMount={setEditor}
+            initialState='draw'
             components={{
               Background: () => (
                 <div className='absolute inset-0 bg-gradient-to-br from-gray-400 to-gray-800' />
               ),
               TopPanel: () => (
-                <HTMLContainer className='zone-center'>
+                <div className='zone-center'>
                   <TldrawUiButton
                     type='menu'
                     className='text-center'
@@ -128,11 +142,13 @@ export default function App() {
                   >
                     ✓ Done
                   </TldrawUiButton>
-                </HTMLContainer>
+                </div>
               ),
-              //Toolbar: () => <div>Toolbar</div>,
+              Toolbar: () => <CustomToolbar />,
               PageMenu: null,
-              //StylePanel: null,
+              ActionsMenu: null,
+              MainMenu: null,
+              HelpMenu: null,
               SharePanel: () => <CustomSharePanel />,
             }}
           />
