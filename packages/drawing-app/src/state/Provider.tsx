@@ -16,6 +16,9 @@ export function GlobalStateProvider({ children }: React.PropsWithChildren) {
     }),
   ).current
 
+  // NOTE: expect the connection & toasts to be repeated twice.
+  // See: https://react.dev/blog/2022/03/29/react-v18#new-strict-mode-behaviors
+  // Doesn't happen in production builds.
   useEffect(() => {
     state.docId = getUrl().searchParams.get(QUERY_PARAM_DOC) ?? undefined
     const unsub1 = subscribeKey(state, 'docId', updateUrlBar)

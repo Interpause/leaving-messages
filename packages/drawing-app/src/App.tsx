@@ -15,18 +15,28 @@ export default function App() {
   const [editor, setEditor] = useState<Editor>()
   const [isEditing, setIsEditing] = useState(false)
 
-  // Create "canvas" and zoom to it.
+  // Config editor.
   useEffect(() => {
     if (!editor) return
+    editor.updateInstanceState({ isDebugMode: false })
+    editor.user.updateUserPreferences({ isDarkMode: DARK_MODE })
+  }, [editor])
+
+  // Create "canvas" and zoom to it.
+  useEffect(() => {
+    // NOTE: Purposefully depend on isEditing to implicitly recreate frame if user deletes it.
+    if (!editor || !isEditing) return
     const shape = { id: FRAME_ID, type: 'frame', props: CANVAS_PROPS }
     if (!editor.getShape(FRAME_ID)) editor.createShape(shape)
     else editor.updateShape(shape)
-  }, [editor])
+  }, [editor, isEditing])
 
   // Zoom to canvas.
   useEffect(() => {
     if (!editor || !isEditing) return
-    editor.zoomToBounds(editor.getShapePageBounds(FRAME_ID)!, { duration: 200 })
+    const bounds = editor.getShapePageBounds(FRAME_ID)
+    if (!bounds) return
+    editor.zoomToBounds(bounds, { duration: 200 })
   }, [editor, isEditing])
 
   return (
@@ -60,19 +70,19 @@ export default function App() {
         {/* Tldraw MUST BE VISIBLE FOR EVENTS TO TRIGGER. */}
         <div className={isEditing ? '' : 'opacity-0 pointer-events-none -z-10'}>
           <Tldraw
+            // TODO: I give up on TldrawEditor, go with hide UI overlay custom UI approach instead.
+            // ^ instead of complete hide, do per component override instead.
             /* HAS TO BE THE MUTABLE VERSION (which doesn't trigger rerender...). */
             store={state.active.tlstore}
-            /* NOTE: convenient to use this editor rather than create one for preview. */
             className='absolute inset-0'
-            onMount={(editor: Editor) => {
-              editor.updateInstanceState({ isDebugMode: true })
-              editor.user.updateUserPreferences({ isDarkMode: DARK_MODE })
-              setEditor(editor)
-            }}
+            /* NOTE: convenient to use this editor rather than create one for preview. */
+            onMount={setEditor}
             components={{
               Background: () => (
                 <div className='absolute inset-0 bg-gradient-to-br from-gray-400 to-gray-800' />
               ),
+              Toolbar: () => <div>Toolbar</div>,
+              PageMenu: null,
             }}
           />
         </div>
