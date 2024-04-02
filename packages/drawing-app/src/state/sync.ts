@@ -10,9 +10,9 @@ import { ref } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import { YKeyValue } from 'y-utility/y-keyvalue'
 import * as Y from 'yjs'
-import { GlobalState } from './StateContext'
-import { BACKEND_URL } from './env'
-import { freshTLStore } from './utils'
+import { BACKEND_URL } from '../env'
+import { freshTLStore } from '../utils'
+import { GlobalState } from './types'
 
 export interface YState {
   ydoc: Y.Doc
@@ -160,7 +160,7 @@ function createYState(docId: string) {
 }
 
 export function initSync(state: GlobalState) {
-  subscribeKey(state.active, 'token', async (token) => {
+  const unsub = subscribeKey(state.active, 'token', async (token) => {
     const active = state.active
     const toast = state.func.toast
     active.cleanPrev && active.cleanPrev()
@@ -247,4 +247,5 @@ export function initSync(state: GlobalState) {
       cleanup()
     }
   })
+  return unsub
 }

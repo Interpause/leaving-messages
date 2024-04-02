@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Editor, Tldraw } from 'tldraw'
 import 'tldraw/tldraw.css'
-import { useGlobalState } from './StateContext'
 import { Tlremote } from './Tlremote'
 import { CANVAS_PROPS, DARK_MODE, FRAME_ID } from './env'
+import { useGlobalState } from './state'
 
 // TODO: Glitch with Tldraw where any update on the component (i.e., classname changing)
 // will cause dark mode to reset (even if TLDraw itself thinks its on). No bug report yet.
