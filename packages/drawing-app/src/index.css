@@ -74,3 +74,31 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.container {
+  box-shadow: var(--shadow-2);
+  border-radius: var(--radius-3);
+  pointer-events: all;
+  background-color: var(--color-panel);
+  height: fit-content;
+  max-height: 100%;
+  margin: 8px;
+  touch-action: auto;
+  overscroll-behavior: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: var(--color-text);
+}
+
+.zone-center {
+  position: relative;
+  z-index: var(--layer-panels);
+  width: fit-content;
+  height: fit-content;
+  border-right: 2px solid var(--color-background);
+  border-left: 2px solid var(--color-background);
+  border-bottom: 2px solid var(--color-background);
+  border-bottom-right-radius: var(--radius-4);
+  border-bottom-left-radius: var(--radius-4);
+  background-color: var(--color-low);
+}
