@@ -66,7 +66,7 @@ function ControlPageInternal() {
         <Tlremote
           editor={editor}
           disabled={editing}
-          className='absolute inset-0 flex items-center justify-center'
+          className='m-auto h-[100vmin] w-[100vmin]'
         />
       </div>
     </div>
