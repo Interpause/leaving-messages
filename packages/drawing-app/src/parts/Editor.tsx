@@ -19,7 +19,7 @@ function CustomSharePanel() {
   return (
     <DefaultStylePanel>
       <div className='p-2'>
-        <p>{'Room: ' + (snap.docId ?? '')}</p>
+        <p>{'ID: ' + (snap.docId ?? '')}</p>
         <p>
           {'Status: ' +
             (roStore.error
