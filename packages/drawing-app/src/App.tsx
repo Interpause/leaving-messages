@@ -1,17 +1,8 @@
-import { useEffect, useState } from 'react'
-import {
-  DefaultStylePanel,
-  DefaultToolbar,
-  DrawToolbarItem,
-  Editor,
-  EraserToolbarItem,
-  HandToolbarItem,
-  Tldraw,
-  TldrawUiButton,
-} from 'tldraw'
+import { useState } from 'react'
+import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
+import { CustomEditor } from './Editor'
 import { Tlremote } from './Tlremote'
-import { CANVAS_PROPS, DARK_MODE, FRAME_ID } from './env'
 import { useGlobalState } from './state'
 
 // TODO: Glitch with Tldraw where any update on the component (i.e., classname changing)
@@ -19,36 +10,6 @@ import { useGlobalState } from './state'
 
 interface EditProps {
   editHook: [boolean, (value: boolean) => void]
-}
-
-function CustomSharePanel() {
-  const [snap] = useGlobalState()
-  const roStore = snap.active.tlstore
-  return (
-    <DefaultStylePanel>
-      <div className='p-2'>
-        <p>{'Room: ' + (snap.docId ?? '')}</p>
-        <p>
-          {'Status: ' +
-            (roStore.error
-              ? roStore.error.message
-              : roStore.status === 'synced-remote'
-                ? roStore.connectionStatus
-                : roStore.status)}
-        </p>
-      </div>
-    </DefaultStylePanel>
-  )
-}
-
-function CustomToolbar() {
-  return (
-    <DefaultToolbar>
-      <HandToolbarItem />
-      <DrawToolbarItem />
-      <EraserToolbarItem />
-    </DefaultToolbar>
-  )
 }
 
 function RoomBar({ editHook }: EditProps) {
@@ -85,34 +46,8 @@ function RoomBar({ editHook }: EditProps) {
 }
 
 export default function App() {
-  const [, state] = useGlobalState()
-
   const [editor, setEditor] = useState<Editor>()
   const [editing, setEditing] = useState(false)
-
-  // Config editor.
-  useEffect(() => {
-    if (!editor) return
-    editor.updateInstanceState({ isDebugMode: false })
-    editor.user.updateUserPreferences({ isDarkMode: DARK_MODE })
-  }, [editor])
-
-  // Create "canvas" and zoom to it.
-  useEffect(() => {
-    // NOTE: Purposefully depend on isEditing to implicitly recreate frame if user deletes it.
-    if (!editor || !editing) return
-    const shape = { id: FRAME_ID, type: 'frame', props: CANVAS_PROPS }
-    if (!editor.getShape(FRAME_ID)) editor.createShape(shape)
-    else editor.updateShape(shape)
-  }, [editor, editing])
-
-  // Zoom to canvas.
-  useEffect(() => {
-    if (!editor || !editing) return
-    const bounds = editor.getShapePageBounds(FRAME_ID)
-    if (!bounds) return
-    editor.zoomToBounds(bounds, { duration: 200, inset: 50 })
-  }, [editor, editing])
 
   return (
     <div className='fixed inset-0 overflow-hidden flex flex-col'>
@@ -120,37 +55,9 @@ export default function App() {
       <div className='relative flex-grow'>
         {/* Tldraw MUST BE VISIBLE FOR EVENTS TO TRIGGER. */}
         <div className={editing ? '' : 'opacity-0 pointer-events-none -z-10'}>
-          <Tldraw
-            // TODO: I give up on TldrawEditor, go with hide UI overlay custom UI approach instead.
-            // ^ instead of complete hide, do per component override instead.
-            /* HAS TO BE THE MUTABLE VERSION (which doesn't trigger rerender...). */
-            store={state.active.tlstore}
-            className='absolute inset-0'
-            /* NOTE: convenient to use this editor rather than create one for preview. */
-            onMount={setEditor}
-            initialState='draw'
-            components={{
-              Background: () => (
-                <div className='absolute inset-0 bg-gradient-to-br from-gray-400 to-gray-800' />
-              ),
-              TopPanel: () => (
-                <div className='zone-center'>
-                  <TldrawUiButton
-                    type='menu'
-                    className='text-center'
-                    onClick={() => setEditing(false)}
-                  >
-                    ✓ Done
-                  </TldrawUiButton>
-                </div>
-              ),
-              Toolbar: () => <CustomToolbar />,
-              PageMenu: null,
-              ActionsMenu: null,
-              MainMenu: null,
-              HelpMenu: null,
-              SharePanel: () => <CustomSharePanel />,
-            }}
+          <CustomEditor
+            editorHook={[editor, setEditor]}
+            editHook={[editing, setEditing]}
           />
         </div>
         <Tlremote
