@@ -160,6 +160,7 @@ function CtrlBar({ editHook }: EditProps) {
           placeholder={snap.active.docId ?? 'Enter docId...'}
           onChange={(e) => (state.docId = e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && goEditMode()}
+          onFocus={() => (state.docId = '')}
         />
         <button onClick={goEditMode}>➕</button>
         <button onClick={fetchIds}>♻️</button>

@@ -27,7 +27,7 @@ function UserPageInternal() {
 
       setEditing(true)
     })()
-  }, [editing, snap, state])
+  }, [editing, snap.func, state])
 
   return (
     <div className='fixed inset-0 overflow-hidden'>

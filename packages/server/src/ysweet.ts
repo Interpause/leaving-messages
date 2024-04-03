@@ -30,7 +30,6 @@ export const sweetPlugin = (app: Elysia) => {
     })
     .get('/list_doc', async () => {
       const docs = await listAllDocs().map((id) => id.toString())
-      console.log('docs:', docs)
       return { docs }
     })
     .get('/delete_doc', async ({ query, set }) => {

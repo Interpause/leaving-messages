@@ -2,19 +2,18 @@ import fscreen from 'fscreen'
 import { useEffect, useMemo, useState } from 'react'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
-import 'swiper/css/free-mode'
+// import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
 import {
   Autoplay,
   EffectCoverflow,
-  FreeMode,
   Mousewheel,
   Pagination,
 } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { TlDisplay } from '../parts/Tlremote'
 
-const SPEED = 5000 // in ms
+const SPEED = 1000 // in ms
 
 function rotateArr<T>(arr: T[], n: number) {
   n = n % arr.length
@@ -42,7 +41,7 @@ export default function DisplayPage() {
   return (
     <>
       <Swiper
-        modules={[Autoplay, Pagination, EffectCoverflow, Mousewheel, FreeMode]}
+        modules={[Autoplay, Pagination, EffectCoverflow, Mousewheel]}
         className='fixed inset-0 overflow-clip bg-gray-50'
         pagination={{ type: 'fraction', verticalClass: 'fix-page-frac' }}
         autoplay={{
@@ -57,6 +56,7 @@ export default function DisplayPage() {
           modifier: 1,
           slideShadows: false,
         }}
+        /*
         freeMode={{
           enabled: true,
           sticky: false,
@@ -64,6 +64,7 @@ export default function DisplayPage() {
           momentumRatio: 999999,
           momentumBounce: false,
         }}
+        */
         direction='vertical'
         effect='coverflow'
         slidesPerView='auto'
@@ -72,6 +73,7 @@ export default function DisplayPage() {
         grabCursor
         centeredSlides
         loop
+        loopAddBlankSlides
         mousewheel
       >
         {rotateArr(ids, randStartIdx).map((id) => (
