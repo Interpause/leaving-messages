@@ -1,13 +1,16 @@
 import { useReducer } from 'react'
 import { TLStoreWithStatus, createTLStore, defaultShapeUtils } from 'tldraw'
 import { QUERY_PARAM_DOC } from './env'
+import { StickerShapeUtil } from './sticker'
 
 export const getUrl = () => new URL(window.location.href)
 
 export const freshTLStore = () =>
   ({
     status: 'not-synced',
-    store: createTLStore({ shapeUtils: [...defaultShapeUtils] }),
+    store: createTLStore({
+      shapeUtils: [...defaultShapeUtils, StickerShapeUtil],
+    }),
   }) as TLStoreWithStatus
 
 export const useUpdate = () => useReducer((x) => x + 1, 0)[1]

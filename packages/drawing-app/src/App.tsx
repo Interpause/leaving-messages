@@ -8,11 +8,16 @@ import {
   HandToolbarItem,
   Tldraw,
   TldrawUiButton,
+  TldrawUiMenuItem,
+  useEditor,
+  useIsToolSelected,
+  useTools,
 } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { Tlremote } from './Tlremote'
 import { CANVAS_PROPS, DARK_MODE, FRAME_ID } from './env'
 import { useGlobalState } from './state'
+import { StickerShapeTool, StickerShapeUtil } from './sticker'
 
 // TODO: Glitch with Tldraw where any update on the component (i.e., classname changing)
 // will cause dark mode to reset (even if TLDraw itself thinks its on). No bug report yet.
@@ -41,12 +46,30 @@ function CustomSharePanel() {
   )
 }
 
+const customStickerToolCard = {
+  id: 'sticker',
+  icon: 'color',
+  label: 'Sticker',
+  kbd: 's',
+}
+
 function CustomToolbar() {
+  const tools = useTools()
+  const editor = useEditor()
+  if (!tools['sticker'])
+    tools['sticker'] = {
+      ...customStickerToolCard,
+      onSelect() {
+        editor.setCurrentTool('sticker')
+      },
+    }
+  const isStickerSelected = useIsToolSelected(tools['sticker'])
   return (
     <DefaultToolbar>
       <HandToolbarItem />
       <DrawToolbarItem />
       <EraserToolbarItem />
+      <TldrawUiMenuItem {...tools['sticker']} isSelected={isStickerSelected} />
     </DefaultToolbar>
   )
 }
@@ -126,6 +149,20 @@ export default function App() {
             /* HAS TO BE THE MUTABLE VERSION (which doesn't trigger rerender...). */
             store={state.active.tlstore}
             className='absolute inset-0'
+            tools={[StickerShapeTool]}
+            shapeUtils={[StickerShapeUtil]}
+            overrides={{
+              tools(editor, tools) {
+                // Create a tool item in the ui's context.
+                tools.card = {
+                  ...customStickerToolCard,
+                  onSelect() {
+                    editor.setCurrentTool('sticker')
+                  },
+                }
+                return tools
+              },
+            }}
             /* NOTE: convenient to use this editor rather than create one for preview. */
             onMount={setEditor}
             initialState='draw'
