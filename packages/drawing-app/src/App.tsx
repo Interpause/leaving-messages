@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import 'tldraw/tldraw.css'
 import ControlPage from './pages/Control'
+import DisplayPage from './pages/Display'
 import { getUrl } from './utils'
 
 const AppModes = ['control', 'display', 'user', 'home'] as const
@@ -38,7 +39,7 @@ export default function App() {
     case 'home':
       return (
         <div className='fixed inset-0 flex items-center justify-center flex-col'>
-          <h3 className='text-2xl text-center'>Choose Operation Mode:</h3>
+          <h3 className='text-2xl text-center'>Choose Operation Mode</h3>
           <div>
             <button onClick={() => setMode('control')}>Control</button>
             <button onClick={() => setMode('display')}>Display</button>
@@ -49,7 +50,7 @@ export default function App() {
     case 'control':
       return <ControlPage />
     case 'display':
-      return <ControlPage />
+      return <DisplayPage />
     case 'user':
       return <ControlPage />
   }
