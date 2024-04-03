@@ -87,11 +87,16 @@ function CustomToolbar() {
 export interface CustomEditorProps {
   editorHook: [Editor | undefined, (editor: Editor | undefined) => void]
   editHook: [boolean, (isEditing: boolean) => void]
+  fullMode?: boolean
 }
 
 // TODO: Glitch with Tldraw where any update on the component (i.e., classname changing)
 // will cause dark mode to reset (even if TLDraw itself thinks its on). No bug report yet.
-export function CustomEditor({ editorHook, editHook }: CustomEditorProps) {
+export function CustomEditor({
+  editorHook,
+  editHook,
+  fullMode,
+}: CustomEditorProps) {
   const [, state] = useGlobalState()
   const [editor, setEditor] = editorHook
   const [editing, setEditing] = editHook
@@ -150,13 +155,15 @@ export function CustomEditor({ editorHook, editHook }: CustomEditorProps) {
             </TldrawUiButton>
           </div>
         ),
-        Toolbar: () => <CustomToolbar />,
-        PageMenu: null,
-        ActionsMenu: null,
-        MainMenu: null,
-        HelpMenu: null,
-        StylePanel: () => <CustomStylePanel />,
-        SharePanel: () => <CustomSharePanel />,
+        ...(!fullMode && {
+          Toolbar: () => <CustomToolbar />,
+          PageMenu: null,
+          ActionsMenu: null,
+          MainMenu: null,
+          HelpMenu: null,
+          StylePanel: () => <CustomStylePanel />,
+          SharePanel: () => <CustomSharePanel />,
+        }),
       }}
     />
   )

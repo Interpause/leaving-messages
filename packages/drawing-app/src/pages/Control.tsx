@@ -61,6 +61,7 @@ function ControlPageInternal() {
           <CustomEditor
             editorHook={[editor, setEditor]}
             editHook={[editing, setEditing]}
+            fullMode
           />
         </div>
         <Tlremote
