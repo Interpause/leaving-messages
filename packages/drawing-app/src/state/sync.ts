@@ -34,10 +34,13 @@ export async function connectYSweet(state: GlobalState) {
   const promise = (async () => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/v1/doc_token?doc=${docId}`)
-      const { token } = await res.json()
+      const data = await res.json()
+      console.log(`[${docId}]`, 'Token:', data)
+      const { token } = data
+      if (!token)
+        throw new Error(`Failed to get token! Data: ${JSON.stringify(data)}`)
       active.docId = docId
       active.token = ref(token)
-      console.log(`[${docId}]`, token)
     } catch (e) {
       console.error(`[${docId}]`, e)
       throw e
