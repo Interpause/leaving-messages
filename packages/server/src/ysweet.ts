@@ -25,8 +25,7 @@ export const sweetPlugin = (app: Elysia) => {
   })
   app.get('/random_doc', async () => {
     const docId = randomId()
-    const token = await createDoc(docId)
-    return { token }
+    return { docId }
   })
   app.get('/list_doc', async () => {
     const docs = await listAllDocs()

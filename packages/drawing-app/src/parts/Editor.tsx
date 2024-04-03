@@ -1,3 +1,4 @@
+import fscreen from 'fscreen'
 import { useEffect, useMemo } from 'react'
 import {
   DefaultFillStyle,
@@ -17,20 +18,39 @@ import 'tldraw/tldraw.css'
 import { CANVAS_PROPS, DARK_MODE, FRAME_ID } from '../env'
 import { useGlobalState } from '../state'
 
+const colorReg = /^#([0-9a-f]{3}){1,2}$/i
+
 function CustomSharePanel() {
   const [snap] = useGlobalState()
   const roStore = snap.active.tlstore
+  const docId = snap.active.docId
+
+  let background = `#${docId}`
+  if (!colorReg.test(background)) background = 'transparent'
+
   return (
     <DefaultStylePanel>
-      <div className='p-2'>
-        <p>{'ID: ' + (snap.docId ?? '')}</p>
+      <div
+        className='p-2'
+        onClick={() => fscreen.requestFullscreen(document.body)}
+      >
         <p>
-          {'Status: ' +
-            (roStore.error
+          <em className='font-semibold'>ID</em>
+          <span className='float-right' style={{ background }}>
+            <span className='mix-blend-difference text-white [text-shadow:2px_2px_#666]'>
+              {docId ?? ''}
+            </span>
+          </span>
+        </p>
+        <p>
+          <em className='font-semibold'>Status</em>
+          <span className='float-right'>
+            {roStore.error
               ? roStore.error.message
               : roStore.status === 'synced-remote'
                 ? roStore.connectionStatus
-                : roStore.status)}
+                : roStore.status}
+          </span>
         </p>
       </div>
     </DefaultStylePanel>

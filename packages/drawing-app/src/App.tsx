@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import 'tldraw/tldraw.css'
 import ControlPage from './pages/Control'
 import DisplayPage from './pages/Display'
+import UserPage from './pages/User'
 import { getUrl } from './utils'
 
 const AppModes = ['control', 'display', 'user', 'home'] as const
@@ -52,6 +53,6 @@ export default function App() {
     case 'display':
       return <DisplayPage />
     case 'user':
-      return <ControlPage />
+      return <UserPage />
   }
 }
