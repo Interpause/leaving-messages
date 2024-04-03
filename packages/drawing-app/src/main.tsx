@@ -7,7 +7,7 @@ import { GlobalStateProvider } from './state'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GlobalStateProvider>
+    <GlobalStateProvider isMain>
       <App />
     </GlobalStateProvider>
     <Toaster position='bottom-right' />

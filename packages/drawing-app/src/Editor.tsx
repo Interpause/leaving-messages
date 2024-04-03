@@ -48,6 +48,8 @@ export interface CustomEditorProps {
   editHook: [boolean, (isEditing: boolean) => void]
 }
 
+// TODO: Glitch with Tldraw where any update on the component (i.e., classname changing)
+// will cause dark mode to reset (even if TLDraw itself thinks its on). No bug report yet.
 export function CustomEditor({ editorHook, editHook }: CustomEditorProps) {
   const [, state] = useGlobalState()
   const [editor, setEditor] = editorHook

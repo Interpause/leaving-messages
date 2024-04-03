@@ -2,11 +2,8 @@ import { useState } from 'react'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { CustomEditor } from './Editor'
-import { Tlremote } from './Tlremote'
+import { TlDisplay } from './Tlremote'
 import { useGlobalState } from './state'
-
-// TODO: Glitch with Tldraw where any update on the component (i.e., classname changing)
-// will cause dark mode to reset (even if TLDraw itself thinks its on). No bug report yet.
 
 interface EditProps {
   editHook: [boolean, (value: boolean) => void]
@@ -45,6 +42,8 @@ function RoomBar({ editHook }: EditProps) {
   )
 }
 
+const subList = ['room1', 'room2', 'room3']
+
 export default function App() {
   const [editor, setEditor] = useState<Editor>()
   const [editing, setEditing] = useState(false)
@@ -60,11 +59,18 @@ export default function App() {
             editHook={[editing, setEditing]}
           />
         </div>
-        <Tlremote
-          editor={editor}
-          disabled={editing}
-          className='absolute inset-0 flex items-center justify-center'
-        />
+        <div className='absolute flex flex-wrap inset-0 overflow-auto'>
+          {subList.map((id, i) => (
+            <div key={i}>
+              <p>{id}</p>
+              <TlDisplay
+                docId={id}
+                disabled={editing}
+                className='flex items-center justify-center'
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

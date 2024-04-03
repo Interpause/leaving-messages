@@ -27,7 +27,7 @@ export async function connectYSweet(state: GlobalState) {
 
   if (!docId) {
     console.error('No docId set!')
-    toast.error('No docId set!')
+    toast && toast.error('No docId set!')
     return
   }
 
@@ -37,18 +37,20 @@ export async function connectYSweet(state: GlobalState) {
       const { token } = await res.json()
       active.docId = docId
       active.token = ref(token)
-      console.log(token)
+      console.log(`[${docId}]`, token)
     } catch (e) {
-      console.error(e)
+      console.error(`[${docId}]`, e)
       throw e
     }
   })()
 
-  await toast.promise(promise, {
-    loading: 'Getting doc token...',
-    success: 'Obtained token!',
-    error: (err) => `Failed to connect: ${err.toString()}`,
-  })
+  if (toast)
+    await toast.promise(promise, {
+      loading: 'Getting doc token...',
+      success: 'Obtained token!',
+      error: (err) => `Failed to connect: ${err.toString()}`,
+    })
+  else await promise
 }
 
 function setupSyncHandlers(tlstore: TLStore, ystate: YState) {
@@ -163,12 +165,13 @@ export function initSync(state: GlobalState) {
   const unsub = subscribeKey(state.active, 'token', async (token) => {
     const active = state.active
     const toast = state.func.toast
+    const docId = active.docId
     active.cleanPrev && active.cleanPrev()
     if (!token) return
     // NOTE: docId must have been set for token to be changed.
-    if (!active.docId) throw new Error('How???')
+    if (!docId) throw new Error('How???')
 
-    const ystate = createYState(active.docId)
+    const ystate = createYState(docId)
     const conn = createYjsProvider(ystate.ydoc, token)
     const cleanup = () => {
       ystate.ystore.destroy()
@@ -179,14 +182,17 @@ export function initSync(state: GlobalState) {
     while (!conn.synced) {
       while (!conn.wsconnected && Object.is(token, active.token)) {
         const n = conn.wsUnsuccessfulReconnects
-        console.log('Y Sweet Connection Attempt:', n)
+        console.log(`[${docId}]`, 'Y Sweet Connection Attempt:', n)
         const promise = new Promise((next) => conn.once('status', next))
-        const s = await toast.promise(promise, {
-          loading: 'Connecting to syncher...',
-          success: 'Connected!',
-          error: 'Failed to connect!',
-        })
-        console.log('Y Sweet Connection Status:', s)
+        let s = null
+        if (toast)
+          s = await toast.promise(promise, {
+            loading: 'Connecting to syncher...',
+            success: 'Connected!',
+            error: 'Failed to connect!',
+          })
+        else s = await promise
+        console.log(`[${docId}]`, 'Y Sweet Connection Status:', s)
       }
 
       if (!Object.is(token, active.token)) {
@@ -194,14 +200,17 @@ export function initSync(state: GlobalState) {
         return
       }
 
-      console.log(`Waiting for Y Sync...`)
+      console.log(`[${docId}] Waiting for Y Sync...`)
       const promise = new Promise((next) => conn.once('synced', next))
-      const s = await toast.promise(promise, {
-        loading: 'Synching...',
-        success: 'Synched!',
-        error: 'Failed to sync!',
-      })
-      console.log('Y Sync Status:', s)
+      let s = null
+      if (toast)
+        s = await toast.promise(promise, {
+          loading: 'Synching...',
+          success: 'Synched!',
+          error: 'Failed to sync!',
+        })
+      else s = await promise
+      console.log(`[${docId}]`, 'Y Sync Status:', s)
     }
 
     active.tlstore = ref(freshTLStore())
@@ -218,18 +227,18 @@ export function initSync(state: GlobalState) {
 
     const handleDisconnect = ({ status }: { status: string }) => {
       if (status === 'disconnected') {
-        toast.error('Disconnected!')
+        toast && toast.error('Disconnected!')
         active.tlstore = ref({
           status: 'synced-remote',
           connectionStatus: 'offline',
           store: tlstore,
         })
       } else if (status === 'connecting') {
-        toast.dismiss()
-        toast.loading('Reconnecting...')
+        toast && toast.dismiss()
+        toast && toast.loading('Reconnecting...')
       } else if (status === 'connected') {
-        toast.dismiss()
-        toast.success('Reconnected!')
+        toast && toast.dismiss()
+        toast && toast.success('Reconnected!')
         active.tlstore = ref({
           status: 'synced-remote',
           connectionStatus: 'online',

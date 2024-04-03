@@ -4,7 +4,7 @@ import { TLStoreWithStatus } from 'tldraw'
 
 export interface Callbacks {
   connect: () => Promise<void>
-  toast: typeof toast
+  toast: typeof toast | undefined
 }
 
 export interface ActiveState {
