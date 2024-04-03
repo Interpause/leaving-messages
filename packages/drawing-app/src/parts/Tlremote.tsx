@@ -1,7 +1,7 @@
 import { ComponentProps, useEffect, useRef, useState } from 'react'
 import { Editor, defaultShapeUtils } from 'tldraw'
-import { DARK_MODE, FRAME_ID } from './env'
-import { GlobalStateProvider, useGlobalState } from './state'
+import { DARK_MODE, FRAME_ID } from '../env'
+import { GlobalStateProvider, useGlobalState } from '../state'
 
 export interface TlremoteProps extends ComponentProps<'div'> {
   editor?: Editor

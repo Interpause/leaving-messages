@@ -10,8 +10,8 @@ import {
   TldrawUiButton,
 } from 'tldraw'
 import 'tldraw/tldraw.css'
-import { CANVAS_PROPS, DARK_MODE, FRAME_ID } from './env'
-import { useGlobalState } from './state'
+import { CANVAS_PROPS, DARK_MODE, FRAME_ID } from '../env'
+import { useGlobalState } from '../state'
 
 function CustomSharePanel() {
   const [snap] = useGlobalState()

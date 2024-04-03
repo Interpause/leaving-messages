@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
-import { CustomEditor } from './Editor'
-import { TlDisplay } from './Tlremote'
+import { CustomEditor } from './parts/Editor'
+import { TlDisplay } from './parts/Tlremote'
 import { useGlobalState } from './state'
 
 interface EditProps {
