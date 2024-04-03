@@ -102,3 +102,10 @@ button:focus-visible {
   border-bottom-left-radius: var(--radius-4);
   background-color: var(--color-low);
 }
+
+.fix-page-frac {
+  margin-bottom: 1rem;
+  color: black;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}

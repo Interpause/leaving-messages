@@ -1,3 +1,4 @@
+import fscreen from 'fscreen'
 import { useEffect, useMemo, useState } from 'react'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
@@ -13,7 +14,7 @@ import {
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { TlDisplay } from '../parts/Tlremote'
 
-const SPEED = 2000 // in ms
+const SPEED = 5000 // in ms
 
 function rotateArr<T>(arr: T[], n: number) {
   n = n % arr.length
@@ -39,45 +40,51 @@ export default function DisplayPage() {
   }, [])
 
   return (
-    <Swiper
-      modules={[Autoplay, Pagination, EffectCoverflow, Mousewheel, FreeMode]}
-      className='fixed inset-0 overflow-clip bg-gray-50'
-      pagination={{ type: 'fraction', verticalClass: 'text-black' }}
-      autoplay={{
-        disableOnInteraction: false,
-        waitForTransition: false,
-        delay: SPEED + 50,
-      }}
-      coverflowEffect={{
-        rotate: 50,
-        stretch: 0,
-        depth: 100,
-        modifier: 1,
-        slideShadows: false,
-      }}
-      freeMode={{
-        enabled: true,
-        sticky: false,
-        momentum: true,
-        momentumRatio: 999999,
-        momentumBounce: false,
-      }}
-      direction='vertical'
-      effect='coverflow'
-      slidesPerView='auto'
-      spaceBetween={0}
-      speed={SPEED}
-      grabCursor
-      centeredSlides
-      loop
-      mousewheel
-    >
-      {rotateArr(ids, randStartIdx).map((id) => (
-        <SwiperSlide key={id} className='m-auto w-fit h-fit'>
-          <p className='text-center text-black'>{id}</p>
-          <TlDisplay docId={id} className='w-[100vmin] h-[100vmin]' />
-        </SwiperSlide>
-      ))}
-    </Swiper>
+    <>
+      <Swiper
+        modules={[Autoplay, Pagination, EffectCoverflow, Mousewheel, FreeMode]}
+        className='fixed inset-0 overflow-clip bg-gray-50'
+        pagination={{ type: 'fraction', verticalClass: 'fix-page-frac' }}
+        autoplay={{
+          disableOnInteraction: false,
+          waitForTransition: false,
+          delay: SPEED + 50,
+        }}
+        coverflowEffect={{
+          rotate: 50,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: false,
+        }}
+        freeMode={{
+          enabled: true,
+          sticky: false,
+          momentum: true,
+          momentumRatio: 999999,
+          momentumBounce: false,
+        }}
+        direction='vertical'
+        effect='coverflow'
+        slidesPerView='auto'
+        spaceBetween={0}
+        speed={SPEED}
+        grabCursor
+        centeredSlides
+        loop
+        mousewheel
+      >
+        {rotateArr(ids, randStartIdx).map((id) => (
+          <SwiperSlide key={id} className='m-auto w-fit h-fit'>
+            <p className='text-center text-black'>{id}</p>
+            <TlDisplay docId={id} className='w-[100vmin] h-[100vmin]' />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+      <button
+        className='fixed top-0 left-0 m-2 w-10 h-10 bg-black opacity-20 z-50'
+        onClick={() => fscreen.requestFullscreen(document.body)}
+      ></button>
+    </>
   )
 }
