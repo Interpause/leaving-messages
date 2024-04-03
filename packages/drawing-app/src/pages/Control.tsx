@@ -26,6 +26,9 @@ function CtrlBar({ editHook }: EditProps) {
         placeholder={snap.active.docId ?? 'Enter docId...'}
         onChange={(e) => (state.docId = e.target.value)}
         onBlur={() => state.docId !== '' && snap.func.connect()}
+        onKeyDown={(e) =>
+          e.key === 'Enter' && (e.target as HTMLInputElement).blur()
+        }
       />
       <button onClick={() => setEditing(!editing)}>
         {editing ? '✓ Save' : '✎ Edit'}
