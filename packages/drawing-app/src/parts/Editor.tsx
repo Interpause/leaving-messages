@@ -1,13 +1,17 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import {
+  DefaultFillStyle,
   DefaultStylePanel,
+  DefaultStylePanelContent,
   DefaultToolbar,
   DrawToolbarItem,
   Editor,
   EraserToolbarItem,
   HandToolbarItem,
+  ReadonlySharedStyleMap,
   Tldraw,
   TldrawUiButton,
+  useRelevantStyles,
 } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { CANVAS_PROPS, DARK_MODE, FRAME_ID } from '../env'
@@ -29,6 +33,23 @@ function CustomSharePanel() {
                 : roStore.status)}
         </p>
       </div>
+    </DefaultStylePanel>
+  )
+}
+
+function CustomStylePanel() {
+  const styles = useRelevantStyles()
+  const modified = useMemo(() => {
+    if (!styles) return null
+    const modified = new ReadonlySharedStyleMap(
+      [...styles.entries()].filter(([key]) => key !== DefaultFillStyle),
+    )
+    return modified
+  }, [styles])
+
+  return (
+    <DefaultStylePanel>
+      <DefaultStylePanelContent styles={modified} />
     </DefaultStylePanel>
   )
 }
@@ -109,6 +130,7 @@ export function CustomEditor({ editorHook, editHook }: CustomEditorProps) {
         ActionsMenu: null,
         MainMenu: null,
         HelpMenu: null,
+        StylePanel: () => <CustomStylePanel />,
         SharePanel: () => <CustomSharePanel />,
       }}
     />
