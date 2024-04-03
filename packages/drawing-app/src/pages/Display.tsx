@@ -1,9 +1,31 @@
-import { useEffect, useState } from 'react'
-import 'tldraw/tldraw.css'
+import { useEffect, useMemo, useState } from 'react'
+import 'swiper/css'
+import 'swiper/css/effect-coverflow'
+import 'swiper/css/free-mode'
+import 'swiper/css/pagination'
+import {
+  Autoplay,
+  EffectCoverflow,
+  FreeMode,
+  Mousewheel,
+  Pagination,
+} from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
 import { TlDisplay } from '../parts/Tlremote'
+
+const SPEED = 2000 // in ms
+
+function rotateArr<T>(arr: T[], n: number) {
+  n = n % arr.length
+  return arr.slice(n, arr.length).concat(arr.slice(0, n))
+}
 
 export default function DisplayPage() {
   const [ids, setIds] = useState<string[]>([])
+  const randStartIdx = useMemo(
+    () => Math.floor(Math.random() * ids.length),
+    [ids.length],
+  )
 
   useEffect(() => {
     const fetchIds = async () => {
@@ -11,24 +33,51 @@ export default function DisplayPage() {
       const { docs } = await res.json()
       setIds(docs)
     }
-    const handle = setInterval(fetchIds, 500)
     fetchIds()
+    const handle = setInterval(fetchIds, 1000)
     return () => clearInterval(handle)
   }, [])
 
   return (
-    <div className='fixed inset-0 overflow-hidden flex flex-col'>
-      <div className='absolute flex flex-wrap inset-0 overflow-auto'>
-        {ids.map((id) => (
-          <div key={id} className='w-full text-center'>
-            <p>{id}</p>
-            <TlDisplay
-              docId={id}
-              className='flex w-full items-center justify-center'
-            />
-          </div>
-        ))}
-      </div>
-    </div>
+    <Swiper
+      modules={[Autoplay, Pagination, EffectCoverflow, Mousewheel, FreeMode]}
+      className='fixed inset-0 overflow-clip bg-gray-50'
+      pagination={{ type: 'fraction', verticalClass: 'text-black' }}
+      autoplay={{
+        disableOnInteraction: false,
+        waitForTransition: false,
+        delay: SPEED + 50,
+      }}
+      coverflowEffect={{
+        rotate: 50,
+        stretch: 0,
+        depth: 100,
+        modifier: 1,
+        slideShadows: false,
+      }}
+      freeMode={{
+        enabled: true,
+        sticky: false,
+        momentum: true,
+        momentumRatio: 999999,
+        momentumBounce: false,
+      }}
+      direction='vertical'
+      effect='coverflow'
+      slidesPerView='auto'
+      spaceBetween={0}
+      speed={SPEED}
+      grabCursor
+      centeredSlides
+      loop
+      mousewheel
+    >
+      {rotateArr(ids, randStartIdx).map((id) => (
+        <SwiperSlide key={id} className='m-auto w-fit h-fit'>
+          <p className='text-center text-black'>{id}</p>
+          <TlDisplay docId={id} className='w-[100vmin] h-[100vmin]' />
+        </SwiperSlide>
+      ))}
+    </Swiper>
   )
 }
