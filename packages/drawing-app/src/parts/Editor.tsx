@@ -87,7 +87,12 @@ export function CustomEditor({ editorHook, editHook }: CustomEditorProps) {
   useEffect(() => {
     // NOTE: Purposefully depend on isEditing to implicitly recreate frame if user deletes it.
     if (!editor || !editing) return
-    const shape = { id: FRAME_ID, type: 'frame', props: CANVAS_PROPS }
+    const shape: Parameters<typeof editor.updateShape>[0] = {
+      id: FRAME_ID,
+      type: 'frame',
+      props: CANVAS_PROPS,
+      isLocked: true,
+    }
     if (!editor.getShape(FRAME_ID)) editor.createShape(shape)
     else editor.updateShape(shape)
   }, [editor, editing])
