@@ -4,7 +4,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "bun run --watch src/index.ts",
-    "ysweet": "bunx y-sweet@latest serve",
+    "ysweet": "bunx y-sweet@latest serve --port 8080 --host 10.32.44.155 ./db",
     "dev": "conc bun:ysweet bun:server"
   },
   "dependencies": {

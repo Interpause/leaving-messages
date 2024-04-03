@@ -38,6 +38,8 @@ export function Tlremote({ editor, disabled, ...props }: TlremoteProps) {
         const svgHolder = svgHolderRef.current
         if (!svgHolder) return
         while (svgHolder.firstChild) svgHolder.removeChild(svgHolder.firstChild)
+        svg.style.width = '100%'
+        svg.style.height = '100%'
         svgHolder.appendChild(svg)
       })
     }

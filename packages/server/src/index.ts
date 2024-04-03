@@ -1,6 +1,7 @@
 import { staticPlugin } from '@elysiajs/static'
 import { swagger } from '@elysiajs/swagger'
 import { Elysia } from 'elysia'
+import './sql'
 import { sweetPlugin } from './ysweet'
 
 const app = new Elysia()
