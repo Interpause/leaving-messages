@@ -15,7 +15,6 @@ const insertDocQuery = db.query('INSERT OR IGNORE INTO docs (id) VALUES (?);')
 
 export function insertDoc(docId: string) {
   insertDocQuery.run(docId)
-  console.log(listAllDocs())
 }
 
 const listAllDocsQuery = db.query<Doc, SQLQueryBindings[]>(
@@ -24,4 +23,10 @@ const listAllDocsQuery = db.query<Doc, SQLQueryBindings[]>(
 
 export function listAllDocs() {
   return listAllDocsQuery.all().map((row) => row.id)
+}
+
+const delDocQuery = db.query('DELETE FROM docs WHERE id = ?;')
+
+export function delDoc(docId: string) {
+  delDocQuery.run(docId)
 }

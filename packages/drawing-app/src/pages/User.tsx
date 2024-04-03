@@ -6,7 +6,7 @@ import { CustomEditor } from '../parts/Editor'
 import { GlobalStateProvider, useGlobalState } from '../state'
 
 function UserPageInternal() {
-  const [, state] = useGlobalState()
+  const [snap, state] = useGlobalState()
   const [editor, setEditor] = useState<Editor>()
   const [editing, setEditing] = useState(false)
 
@@ -23,11 +23,11 @@ function UserPageInternal() {
       }
 
       state.docId = docId
-      await state.func.connect()
+      await snap.func.connect()
 
       setEditing(true)
     })()
-  }, [editing, state])
+  }, [editing, snap, state])
 
   return (
     <div className='fixed inset-0 overflow-hidden'>

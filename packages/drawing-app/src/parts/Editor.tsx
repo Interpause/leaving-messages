@@ -155,6 +155,7 @@ export function CustomEditor({
             </TldrawUiButton>
           </div>
         ),
+        SharePanel: () => <CustomSharePanel />,
         ...(!fullMode && {
           Toolbar: () => <CustomToolbar />,
           PageMenu: null,
@@ -162,7 +163,6 @@ export function CustomEditor({
           MainMenu: null,
           HelpMenu: null,
           StylePanel: () => <CustomStylePanel />,
-          SharePanel: () => <CustomSharePanel />,
         }),
       }}
     />

@@ -1,6 +1,6 @@
 import { DocumentManager } from '@y-sweet/sdk'
 import Elysia from 'elysia'
-import { insertDoc, listAllDocs } from './sql'
+import { delDoc, insertDoc, listAllDocs } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
 
@@ -14,23 +14,31 @@ const createDoc = async (docId: string) => {
 }
 
 export const sweetPlugin = (app: Elysia) => {
-  app.get('/doc_token', async ({ query, set }) => {
-    const docId = query[QUERY_PARAM_DOC]
-    if (!docId) {
-      set.status = 400
-      return 'Please provide a document id.'
-    }
-    const token = await createDoc(docId)
-    return { token }
-  })
-  app.get('/random_doc', async () => {
-    const docId = randomId()
-    return { docId }
-  })
-  app.get('/list_doc', async () => {
-    const docs = await listAllDocs()
-    return { docs }
-  })
-
   return app
+    .get('/doc_token', async ({ query, set }) => {
+      const docId = query[QUERY_PARAM_DOC]
+      if (!docId) {
+        set.status = 400
+        return 'Please provide a document id.'
+      }
+      const token = await createDoc(docId)
+      return { token }
+    })
+    .get('/random_doc', async () => {
+      const docId = randomId()
+      return { docId }
+    })
+    .get('/list_doc', async () => {
+      const docs = await listAllDocs().map((id) => id.toString())
+      console.log('docs:', docs)
+      return { docs }
+    })
+    .get('/delete_doc', async ({ query, set }) => {
+      const docId = query[QUERY_PARAM_DOC]
+      if (!docId) {
+        set.status = 400
+        return 'Please provide a document id.'
+      }
+      delDoc(docId)
+    })
 }
