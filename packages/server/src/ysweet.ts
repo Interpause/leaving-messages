@@ -19,9 +19,10 @@ export const sweetPlugin = (app: Elysia) => {
       const docId = query[QUERY_PARAM_DOC]
       if (!docId) {
         set.status = 400
-        return 'Please provide a document id.'
+        return { error: 'Please provide a document id.' }
       }
       const token = await createDoc(docId)
+      token.url = 'wss://miro-ws.interpause.dev/doc/ws'
       return { token }
     })
     .get('/random_doc', async () => {
@@ -36,7 +37,7 @@ export const sweetPlugin = (app: Elysia) => {
       const docId = query[QUERY_PARAM_DOC]
       if (!docId) {
         set.status = 400
-        return 'Please provide a document id.'
+        return { error: 'Please provide a document id.' }
       }
       delDoc(docId)
     })

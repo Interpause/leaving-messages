@@ -13,9 +13,10 @@ function UserPageInternal() {
   useEffect(() => {
     if (editing) return
     ;(async () => {
-      const data = await fetch('/api/v1/random_doc')
+      const res = await fetch('/api/v1/random_doc')
+      const data = await res.json()
       console.log('Received', data)
-      const { docId } = await data.json()
+      const { docId } = data
 
       if (!docId) {
         toast.error('Failed to create document.')
