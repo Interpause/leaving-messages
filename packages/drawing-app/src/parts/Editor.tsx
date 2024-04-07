@@ -127,7 +127,9 @@ export function CustomEditor({
     if (!editor || !editing) return
     const bounds = editor.getShapePageBounds(FRAME_ID)
     if (!bounds) return
-    editor.zoomToBounds(bounds, { duration: 200, inset: 50 })
+    // NOTE: I can't think of a way to properly prevent multi-trigger of the animation
+    // so no anim it is.
+    editor.zoomToBounds(bounds, { duration: 0, inset: 50 })
   }, [editor, editing])
 
   return (

@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
+import { QUERY_PARAM_DOC } from '../env'
 import { CustomEditor } from '../parts/Editor'
 import { GlobalStateProvider, useGlobalState } from '../state'
+import { getUrl } from '../utils'
 
 function UserPageInternal() {
   const [snap, state] = useGlobalState()
@@ -12,22 +14,30 @@ function UserPageInternal() {
 
   useEffect(() => {
     if (editing) return
-    ;(async () => {
-      const res = await fetch('/api/v1/random_doc')
-      const data = await res.json()
-      console.log('Received', data)
-      const { docId } = data
-
-      if (!docId) {
-        toast.error('Failed to create document.')
-        return
-      }
-
-      state.docId = docId
-      await snap.func.connect()
-
+    // Allow user to refresh page. Have to use long form as state hasnt update yet.
+    if (
+      getUrl().searchParams.get(QUERY_PARAM_DOC) &&
+      state.docId === undefined
+    ) {
       setEditing(true)
-    })()
+      return
+    } else
+      (async () => {
+        const res = await fetch('/api/v1/random_doc')
+        const data = await res.json()
+        console.log('Received', data)
+        const { docId } = data
+
+        if (!docId) {
+          toast.error('Failed to create document.')
+          return
+        }
+
+        state.docId = docId
+        await snap.func.connect()
+
+        setEditing(true)
+      })()
   }, [editing, snap.func, state])
 
   return (
@@ -37,9 +47,9 @@ function UserPageInternal() {
         editHook={[editing, setEditing]}
       />
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black opacity-40 ${editing ? '' : 'hidden'}`}
+        className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40 ${editing ? 'hidden' : ''}`}
       >
-        <p className='text-4xl text-black'>Loading! Please wait...</p>
+        <p className='text-4xl text-white'>Loading! Please wait...</p>
       </div>
     </div>
   )
