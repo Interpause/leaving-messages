@@ -6,7 +6,14 @@ const QUERY_PARAM_DOC = 'doc'
 
 const manager = new DocumentManager(process.env.YSWEET_URL)
 
-const randomId = () => Math.floor(Math.random() * 16777215).toString(16)
+const randomId = () =>
+  '#' +
+  '0123456789abcdef'
+    .split('')
+    .map(function (v, i, a) {
+      return i > 5 ? null : a[Math.floor(Math.random() * 16)]
+    })
+    .join('')
 
 const createDoc = async (docId: string) => {
   insertDoc(docId)
