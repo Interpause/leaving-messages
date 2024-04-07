@@ -7,7 +7,6 @@ const QUERY_PARAM_DOC = 'doc'
 const manager = new DocumentManager(process.env.YSWEET_URL)
 
 const randomId = () =>
-  '#' +
   '0123456789abcdef'
     .split('')
     .map(function (v, i, a) {
