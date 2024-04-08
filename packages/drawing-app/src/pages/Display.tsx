@@ -1,24 +1,15 @@
 import fscreen from 'fscreen'
 import { useEffect, useMemo, useState } from 'react'
 import 'swiper/css'
-import 'swiper/css/effect-coverflow'
+import 'swiper/css/effect-fade'
+// import 'swiper/css/effect-coverflow'
 // import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
-import {
-  Autoplay,
-  EffectCoverflow,
-  Mousewheel,
-  Pagination,
-} from 'swiper/modules'
+import { Autoplay, EffectFade, Mousewheel, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { TlDisplay } from '../parts/Tlremote'
 
-const SPEED = 1000 // in ms
-
-function rotateArr<T>(arr: T[], n: number) {
-  n = n % arr.length
-  return arr.slice(n, arr.length).concat(arr.slice(0, n))
-}
+const SPEED = 5000 // in ms
 
 export default function DisplayPage() {
   const [ids, setIds] = useState<string[]>([])
@@ -38,17 +29,25 @@ export default function DisplayPage() {
     return () => clearInterval(handle)
   }, [])
 
+  if (!ids.length)
+    return (
+      <div className='fixed inset-0 from-orange-400 to-yellow-300 from-40% bg-gradient-to-b flex items-center justify-center'>
+        <h3 className='text-4xl text-black'>Waiting for drawings...</h3>
+      </div>
+    )
+
   return (
-    <>
+    <div className='fixed inset-0 from-orange-400 to-yellow-300 from-40% bg-gradient-to-b'>
       <Swiper
-        modules={[Autoplay, Pagination, EffectCoverflow, Mousewheel]}
-        className='fixed inset-0 overflow-clip bg-gray-50'
+        modules={[Autoplay, Pagination, EffectFade, Mousewheel]}
+        className='absolute inset-0 overflow-clip bg-white mix-blend-multiply'
         pagination={{ type: 'fraction', verticalClass: 'fix-page-frac' }}
         autoplay={{
           disableOnInteraction: false,
-          waitForTransition: false,
-          delay: SPEED + 50,
+          waitForTransition: true,
+          delay: SPEED,
         }}
+        /*
         coverflowEffect={{
           rotate: 50,
           stretch: 0,
@@ -56,6 +55,7 @@ export default function DisplayPage() {
           modifier: 1,
           slideShadows: false,
         }}
+        */
         /*
         freeMode={{
           enabled: true,
@@ -66,27 +66,30 @@ export default function DisplayPage() {
         }}
         */
         direction='vertical'
-        effect='coverflow'
+        effect='fade'
         slidesPerView='auto'
         spaceBetween={0}
-        speed={SPEED}
+        speed={1000}
         grabCursor
         centeredSlides
         loop
         loopAddBlankSlides
         mousewheel
+        initialSlide={randStartIdx}
       >
-        {rotateArr(ids, randStartIdx).map((id) => (
+        {ids.map((id) => (
           <SwiperSlide key={id} className='m-auto w-fit h-fit'>
-            <p className='text-center text-black'>{id}</p>
+            <p className='text-center text-black opacity-0 hover:opacity-100'>
+              {id}
+            </p>
             <TlDisplay docId={id} className='w-[100vmin] h-[100vmin]' />
           </SwiperSlide>
         ))}
       </Swiper>
       <button
-        className='fixed top-0 left-0 m-2 w-10 h-10 bg-black opacity-20 z-50'
+        className='fixed bottom-0 left-0 right-0 mb-4 mx-auto w-10 h-10 bg-black opacity-0 z-50'
         onClick={() => fscreen.requestFullscreen(document.body)}
       ></button>
-    </>
+    </div>
   )
 }
