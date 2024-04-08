@@ -67,7 +67,8 @@ export default function DisplayPage() {
         */
         direction='vertical'
         effect='fade'
-        slidesPerView='auto'
+        fadeEffect={{ crossFade: true }} // This transparents other slides
+        slidesPerView={1}
         spaceBetween={0}
         speed={1000}
         grabCursor
@@ -78,18 +79,16 @@ export default function DisplayPage() {
         initialSlide={randStartIdx}
       >
         {ids.map((id) => (
-          <SwiperSlide key={id} className='m-auto w-fit h-fit'>
-            <p className='text-center text-black opacity-0 hover:opacity-100'>
-              {id}
-            </p>
-            <TlDisplay docId={id} className='w-[100vmin] h-[100vmin]' />
+          <SwiperSlide key={id} className='flex flex-col justify-center'>
+            <TlDisplay docId={id} className='self-stretch' />
+            <p className='fixed bottom-2 w-full text-center text-black'>{id}</p>
           </SwiperSlide>
         ))}
       </Swiper>
       <button
-        className='fixed bottom-0 left-0 right-0 mb-4 mx-auto w-10 h-10 bg-black opacity-0 z-50'
+        className='fixed bottom-4 inset-x-0 mx-auto w-10 h-10 bg-black opacity-0 z-50'
         onClick={() => fscreen.requestFullscreen(document.body)}
-      ></button>
+      />
     </div>
   )
 }
