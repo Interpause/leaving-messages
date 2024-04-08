@@ -22,7 +22,7 @@ export function Tlremote({ editor, disabled, ...props }: TlremoteProps) {
         bounds: editor.getShapePageBounds(FRAME_ID),
         scale: 1,
         background: true,
-        padding: 0,
+        padding: -1,
         darkMode: DARK_MODE,
       })
       if (!svg) {
