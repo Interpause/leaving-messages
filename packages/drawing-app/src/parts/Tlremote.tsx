@@ -15,14 +15,18 @@ export function Tlremote({ editor, disabled, ...props }: TlremoteProps) {
     if (!editor) return
 
     let animHandle: number | null = null
+    let ready = true
     const updateSvg = async () => {
-      if (disabled) return
+      if (disabled || !ready) return
+      ready = false
       const shapeIds = editor.getCurrentPageShapeIds()
+      const bounds = editor.getShapePageBounds(FRAME_ID)
+      if (!bounds) return
       const svg = await editor.getSvg([...shapeIds], {
-        bounds: editor.getShapePageBounds(FRAME_ID),
+        bounds: bounds.clone(), // NOTE: getSvg mutates bounds, cause zoom-in if neg padding used
         scale: 1,
-        background: true,
-        padding: -1,
+        background: false,
+        padding: -2,
         darkMode: DARK_MODE,
       })
       if (!svg) {
@@ -42,6 +46,7 @@ export function Tlremote({ editor, disabled, ...props }: TlremoteProps) {
         svg.style.height = '100%'
         svgHolder.appendChild(svg)
       })
+      ready = true
     }
 
     updateSvg()
