@@ -95,7 +95,10 @@ export default function DisplayPage() {
       >
         {ids.map((id) => (
           <SwiperSlide key={id} className='flex flex-col justify-center'>
-            <TlDisplay docId={id} className='self-stretch' />
+            <TlDisplay
+              docId={id}
+              className='w-[100vmin] h-[100vmin] self-center'
+            />
             <p className='fixed bottom-2 w-full text-center text-black'>{id}</p>
           </SwiperSlide>
         ))}
