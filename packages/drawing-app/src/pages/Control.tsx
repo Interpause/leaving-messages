@@ -102,7 +102,7 @@ function Table({ docs, refresh, editHook }: TableProps) {
         .then(refresh)
         .then(() => {
           toast.dismiss()
-          toast.success(`Deleted document: ${doc}`)
+          toast.success(`Deleted document: ${doc.id}`)
         })
         .catch((err) =>
           toast.error(`Failed to delete document: ${err.toString()}`),
@@ -171,7 +171,7 @@ function CtrlBar({ editHook }: EditProps) {
   const [filterHidden, setFilterHidden] = useState(false)
   const [filterShown, setFilterShown] = useState(false)
   const [filterDeleted, setFilterDeleted] = useState(true)
-  const serverState = api.useServerState()
+  const { displayOn: serverDisplayOn } = api.useServerState()
 
   const fetchDocs = useCallback(() => {
     const promise = (async () => {
@@ -199,11 +199,8 @@ function CtrlBar({ editHook }: EditProps) {
   }, [])
 
   useEffect(() => {
-    if (serverState) {
-      const { displayOn } = serverState
-      setDisplayOn(displayOn)
-    }
-  }, [serverState])
+    if (serverDisplayOn !== undefined) setDisplayOn(serverDisplayOn)
+  }, [serverDisplayOn])
 
   const goEditMode = useCallback(() => {
     snap.func.connect()
@@ -213,7 +210,7 @@ function CtrlBar({ editHook }: EditProps) {
   return (
     <div className='absolute inset-0 flex flex-col items-center gap-2'>
       <h3 className='text-3xl py-4'>Control Panel</h3>
-      <div className='w-3/4 md:w-[36rem] flex flex-col items-stretch gap-1'>
+      <div className='w-5/6 md:w-[40rem] flex flex-col items-stretch gap-1'>
         <div className='join'>
           <label className='input input-sm input-bordered grow flex items-center join-item gap-2'>
             <span>🔍</span>

@@ -74,12 +74,12 @@ async function patchState(changes: object) {
 }
 
 interface ServerState {
-  displayOn: boolean
-  version: string
+  displayOn?: boolean
+  version?: string
 }
 
 function useServerState() {
-  const { lastJsonMessage } = useWebSocket<ServerState>('/api/state', {
+  const { lastJsonMessage } = useWebSocket<ServerState | null>('/api/state', {
     retryOnError: true,
     reconnectAttempts: 999999999,
   })
