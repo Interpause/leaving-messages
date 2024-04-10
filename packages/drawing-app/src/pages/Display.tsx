@@ -1,5 +1,5 @@
 import fscreen from 'fscreen'
-import { useEffect, useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
 // import 'swiper/css/effect-coverflow'
@@ -29,7 +29,7 @@ export default function DisplayPage() {
     [ids.length],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (event !== 'list_update') return
     ;(async () => {
       const { docs } = await api.listDocs()

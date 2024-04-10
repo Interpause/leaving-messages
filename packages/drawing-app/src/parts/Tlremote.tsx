@@ -1,4 +1,4 @@
-import { ComponentProps, useEffect, useRef, useState } from 'react'
+import { ComponentProps, useLayoutEffect, useRef, useState } from 'react'
 import { Editor, defaultShapeUtils } from 'tldraw'
 import { DARK_MODE, FRAME_ID } from '../env'
 import { GlobalStateProvider, useGlobalState } from '../state'
@@ -11,7 +11,7 @@ export interface TlremoteProps extends ComponentProps<'div'> {
 export function Tlremote({ editor, disabled, ...props }: TlremoteProps) {
   const svgHolderRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!editor) return
 
     let animHandle: number | null = null
@@ -81,7 +81,7 @@ export function TlDisplayInternal(props: TlDisplayInternalProps) {
   const [snap] = useGlobalState()
   const [editor, setEditor] = useState<Editor>()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const store = snap.active.tlstore.store
     if (!store) return
 

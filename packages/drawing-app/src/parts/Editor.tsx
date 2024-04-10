@@ -1,5 +1,5 @@
 import fscreen from 'fscreen'
-import { useEffect, useMemo } from 'react'
+import { useLayoutEffect, useMemo } from 'react'
 import {
   DefaultFillStyle,
   DefaultStylePanel,
@@ -102,14 +102,14 @@ export function CustomEditor({
   const [editing, setEditing] = editHook
 
   // Set editor config.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!editor || !editing) return
     editor.updateInstanceState({ isDebugMode: false })
     editor.user.updateUserPreferences({ isDarkMode: DARK_MODE })
   }, [editor, editing])
 
   // Create "canvas" and zoom to it.
-  useEffect(() => {
+  useLayoutEffect(() => {
     // NOTE: Purposefully depend on isEditing to implicitly recreate frame if user deletes it.
     if (!editor || !editing) return
     const shape: Parameters<typeof editor.updateShape>[0] = {
@@ -123,7 +123,7 @@ export function CustomEditor({
   }, [editor, editing])
 
   // Zoom to canvas.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!editor || !editing) return
     const bounds = editor.getShapePageBounds(FRAME_ID)
     if (!bounds) return

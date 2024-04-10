@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
@@ -137,7 +137,10 @@ function Table({ docs, refresh, editHook }: TableProps) {
     [refresh],
   )
 
-  useEffect(() => setFuse(new Fuse(docs, { keys: ['id', 'mtime'] })), [docs])
+  useLayoutEffect(
+    () => setFuse(new Fuse(docs, { keys: ['id', 'mtime'] })),
+    [docs],
+  )
 
   const found =
     (snap.docId ? fuse?.search(snap.docId).map(({ item }) => item) : docs) ??
@@ -190,11 +193,11 @@ function CtrlBar({ editHook }: EditProps) {
     })
   }, [filterHidden, filterShown, filterDeleted])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     !editing && fetchDocs()
   }, [fetchDocs, editing])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (serverDisplayOn !== undefined) setDisplayOn(serverDisplayOn)
   }, [serverDisplayOn])
 

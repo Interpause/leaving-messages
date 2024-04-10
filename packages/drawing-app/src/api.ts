@@ -1,5 +1,5 @@
 import { ClientToken } from '@y-sweet/sdk'
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import useWebSocket from 'react-use-websocket'
 import { BACKEND_URL } from './env'
 
@@ -90,7 +90,7 @@ function useServerState() {
   })
 
   // NOTE: Websocket will publish state on open, no need to manual fetch.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (lastJsonMessage === null) return
     console.log('[server event]', lastJsonMessage)
     const { event } = lastJsonMessage

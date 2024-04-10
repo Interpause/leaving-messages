@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import 'tldraw/tldraw.css'
 import ControlPage from './pages/Control'
 import DisplayPage from './pages/Display'
@@ -11,7 +11,7 @@ type AppMode = (typeof AppModes)[number]
 export default function App() {
   const [mode, setMode] = useState<AppMode>()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const updateMode = () => {
       const hash = getUrl().hash.slice(1) as AppMode
       if (AppModes.includes(hash)) setMode(hash)
@@ -27,7 +27,7 @@ export default function App() {
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (mode === undefined) return
     const url = getUrl()
     const hash = url.hash.slice(1) as AppMode

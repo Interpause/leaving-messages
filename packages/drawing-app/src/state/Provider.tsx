@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
 import { proxy, ref } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
@@ -28,7 +28,7 @@ export function GlobalStateProvider({
   // NOTE: expect the connection & toasts to be repeated twice.
   // See: https://react.dev/blog/2022/03/29/react-v18#new-strict-mode-behaviors
   // Doesn't happen in production builds.
-  useEffect(() => {
+  useLayoutEffect(() => {
     let unsub1 = () => {}
     if (isMain) {
       state.docId = getUrl().searchParams.get(QUERY_PARAM_DOC) ?? docId

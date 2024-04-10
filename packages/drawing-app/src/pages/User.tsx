@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
@@ -13,7 +13,7 @@ function UserPageInternal() {
   const [editor, setEditor] = useState<Editor>()
   const [editing, setEditing] = useState(false)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (editing) return
     // Allow user to refresh page. Have to use long form as state hasnt update yet.
     if (
