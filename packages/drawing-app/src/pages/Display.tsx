@@ -44,7 +44,9 @@ export default function DisplayPage() {
         pagination={{ type: 'fraction', verticalClass: 'fix-page-frac' }}
         autoplay={{
           disableOnInteraction: false,
-          waitForTransition: true,
+          // NOTE: WaitForTransition must be false else autoplay will stop working on remount
+          waitForTransition: false,
+          // NOTE: delay must be greater than speed by at least ~100ms else autoplay might break
           delay: SPEED,
         }}
         /*
