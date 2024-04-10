@@ -200,57 +200,69 @@ function CtrlBar({ editHook }: EditProps) {
   return (
     <div className='absolute inset-0 flex flex-col items-center gap-2'>
       <h3 className='text-3xl py-4'>Control Panel</h3>
-      <div className='join'>
-        <label className='input input-sm input-bordered flex items-center join-item gap-2'>
-          <span>🔍</span>
-          <input
-            type='text'
-            value={snap.docId ?? ''}
-            className='grow'
-            placeholder={snap.active.docId ?? 'Enter docId...'}
-            onChange={(e) => (state.docId = e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && goEditMode()}
-            onFocus={() => (state.docId = '')}
-          />
-        </label>
-        <button
-          className='btn btn-outline btn-sm join-item'
-          onClick={goEditMode}
-        >
-          +
-        </button>
-      </div>
-      <div className='join gap-4 outline outline-[0.5px] outline-gray-400'>
-        <button className='btn btn-ghost btn-sm h-full' onClick={fetchDocs}>
-          ♻️
-        </button>
-        <label className='label cursor-pointer'>
-          <span className='label-text mr-0.5'>Shown</span>
-          <input
-            type='checkbox'
-            className='checkbox checkbox-sm'
-            checked={!filterShown}
-            onChange={() => setFilterShown(!filterShown)}
-          />
-        </label>
-        <label className='label cursor-pointer'>
-          <span className='label-text mr-0.5'>Hidden</span>
+      <div className='w-3/4 md:w-[36rem] flex flex-col items-stretch gap-1'>
+        <div className='join'>
+          <label className='input input-sm input-bordered grow flex items-center join-item gap-2'>
+            <span>🔍</span>
+            <input
+              type='text'
+              value={snap.docId ?? ''}
+              className='grow'
+              placeholder={snap.active.docId ?? 'Enter docId...'}
+              onChange={(e) => (state.docId = e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && goEditMode()}
+              onFocus={() => (state.docId = '')}
+            />
+          </label>
+          <button
+            className='btn btn-outline btn-sm join-item'
+            onClick={goEditMode}
+          >
+            +
+          </button>
+        </div>
+        <div className='join justify-between outline outline-[0.5px]'>
+          <button
+            className='btn btn-outline btn-sm h-full join-item'
+            onClick={fetchDocs}
+          >
+            ♻️
+          </button>
           <input
             type='checkbox'
-            className='checkbox checkbox-sm'
-            checked={!filterHidden}
-            onChange={() => setFilterHidden(!filterHidden)}
+            className='btn btn-outline btn-sm h-full join-item'
+            aria-label='😴'
+            onClick={fetchDocs}
           />
-        </label>
-        <label className='label cursor-pointer'>
-          <span className='label-text mr-0.5'>Deleted</span>
-          <input
-            type='checkbox'
-            className='checkbox checkbox-sm'
-            checked={!filterDeleted}
-            onChange={() => setFilterDeleted(!filterDeleted)}
-          />
-        </label>
+          <span className='grow'></span>
+          <label className='label cursor-pointer'>
+            <span className='label-text mr-0.5'>Shown</span>
+            <input
+              type='checkbox'
+              className='checkbox checkbox-sm'
+              checked={!filterShown}
+              onChange={() => setFilterShown(!filterShown)}
+            />
+          </label>
+          <label className='label cursor-pointer'>
+            <span className='label-text mr-0.5'>Hidden</span>
+            <input
+              type='checkbox'
+              className='checkbox checkbox-sm'
+              checked={!filterHidden}
+              onChange={() => setFilterHidden(!filterHidden)}
+            />
+          </label>
+          <label className='label cursor-pointer'>
+            <span className='label-text mr-0.5'>Deleted</span>
+            <input
+              type='checkbox'
+              className='checkbox checkbox-sm'
+              checked={!filterDeleted}
+              onChange={() => setFilterDeleted(!filterDeleted)}
+            />
+          </label>
+        </div>
       </div>
       <Table docs={docs} refresh={fetchDocs} editHook={editHook} />
     </div>
