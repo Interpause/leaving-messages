@@ -20,3 +20,12 @@ export const updateUrlBar = (docId?: string) => {
   else url.searchParams.set(QUERY_PARAM_DOC, docId)
   window.history.replaceState({}, '', url.toString())
 }
+
+export const toggleEruda = () => {
+  const url = getUrl()
+  const eruda = url.searchParams.get('eruda')
+  if (eruda === null) url.searchParams.set('eruda', 'true')
+  else url.searchParams.delete('eruda')
+  window.history.replaceState({}, '', url.toString())
+  window.location.reload()
+}
