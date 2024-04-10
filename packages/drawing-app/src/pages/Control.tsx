@@ -195,10 +195,6 @@ function CtrlBar({ editHook }: EditProps) {
   }, [fetchDocs, editing])
 
   useEffect(() => {
-    api.getState().then((state) => setDisplayOn(state.displayOn))
-  }, [])
-
-  useEffect(() => {
     if (serverDisplayOn !== undefined) setDisplayOn(serverDisplayOn)
   }, [serverDisplayOn])
 

@@ -1,4 +1,5 @@
 import { ClientToken } from '@y-sweet/sdk'
+import { useEffect, useState } from 'react'
 import useWebSocket from 'react-use-websocket'
 import { BACKEND_URL } from './env'
 
@@ -79,11 +80,18 @@ interface ServerState {
 }
 
 function useServerState() {
+  const [lastKnown, setLastKnown] = useState<ServerState | null>(null)
   const { lastJsonMessage } = useWebSocket<ServerState | null>('/api/state', {
     retryOnError: true,
     reconnectAttempts: 999999999,
   })
-  return lastJsonMessage ?? {}
+
+  useEffect(() => {
+    if (lastJsonMessage !== null) return
+    getState().then((state) => setLastKnown(state))
+  }, [lastJsonMessage])
+
+  return lastJsonMessage ?? lastKnown ?? {}
 }
 
 const api = {
