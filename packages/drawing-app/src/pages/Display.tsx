@@ -29,6 +29,15 @@ export default function DisplayPage() {
     return () => clearInterval(handle)
   }, [])
 
+  const { displayOn } = api.useServerState()
+
+  if (displayOn === false)
+    return (
+      <div className='fixed inset-0 bg-black flex items-center justify-center'>
+        <h3 className='text-4xl text-white'>Display is off...</h3>
+      </div>
+    )
+
   if (!ids.length)
     return (
       <div className='fixed inset-0 from-orange-400 to-yellow-300 from-40% bg-gradient-to-b flex items-center justify-center'>

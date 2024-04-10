@@ -167,9 +167,11 @@ function CtrlBar({ editHook }: EditProps) {
   const [editing, setEditing] = editHook
   const [docs, setDocs] = useState<Doc[]>([])
   const [snap, state] = useGlobalState()
+  const [displayOn, setDisplayOn] = useState<boolean | null>(null)
   const [filterHidden, setFilterHidden] = useState(false)
   const [filterShown, setFilterShown] = useState(false)
   const [filterDeleted, setFilterDeleted] = useState(true)
+  const serverState = api.useServerState()
 
   const fetchDocs = useCallback(() => {
     const promise = (async () => {
@@ -191,6 +193,17 @@ function CtrlBar({ editHook }: EditProps) {
   useEffect(() => {
     !editing && fetchDocs()
   }, [fetchDocs, editing])
+
+  useEffect(() => {
+    api.getState().then((state) => setDisplayOn(state.displayOn))
+  }, [])
+
+  useEffect(() => {
+    if (serverState) {
+      const { displayOn } = serverState
+      setDisplayOn(displayOn)
+    }
+  }, [serverState])
 
   const goEditMode = useCallback(() => {
     snap.func.connect()
@@ -230,37 +243,45 @@ function CtrlBar({ editHook }: EditProps) {
           </button>
           <input
             type='checkbox'
-            className='btn btn-outline btn-sm h-full join-item'
+            className='btn btn-outline btn-sm h-full join-item disabled:btn-disabled'
             aria-label='😴'
-            onClick={fetchDocs}
+            checked={displayOn === false}
+            disabled={displayOn === null}
+            onChange={() => {
+              setDisplayOn(null)
+              api.patchState({ displayOn: !displayOn }).catch((err) => {
+                toast.error(`Failed to toggle display: ${err.toString()}`)
+                setDisplayOn(displayOn)
+              })
+            }}
           />
           <span className='grow'></span>
           <label className='label cursor-pointer'>
-            <span className='label-text mr-0.5'>Shown</span>
             <input
               type='checkbox'
               className='checkbox checkbox-sm'
               checked={!filterShown}
               onChange={() => setFilterShown(!filterShown)}
             />
+            <span className='label-text ml-0.5'>Shown</span>
           </label>
           <label className='label cursor-pointer'>
-            <span className='label-text mr-0.5'>Hidden</span>
             <input
               type='checkbox'
               className='checkbox checkbox-sm'
               checked={!filterHidden}
               onChange={() => setFilterHidden(!filterHidden)}
             />
+            <span className='label-text ml-0.5'>Hidden</span>
           </label>
           <label className='label cursor-pointer'>
-            <span className='label-text mr-0.5'>Deleted</span>
             <input
               type='checkbox'
               className='checkbox checkbox-sm'
               checked={!filterDeleted}
               onChange={() => setFilterDeleted(!filterDeleted)}
             />
+            <span className='label-text ml-0.5'>Deleted</span>
           </label>
         </div>
       </div>

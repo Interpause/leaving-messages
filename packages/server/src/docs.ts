@@ -20,7 +20,7 @@ const createDoc = async (docId: string) => {
   return await manager.getOrCreateDocAndToken(docId)
 }
 
-export const sweetPlugin = (app: Elysia) => {
+export const docPlugin = (app: Elysia) => {
   return app
     .get(
       '/doc_token',

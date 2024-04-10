@@ -1,4 +1,5 @@
 import { ClientToken } from '@y-sweet/sdk'
+import useWebSocket from 'react-use-websocket'
 import { BACKEND_URL } from './env'
 
 export interface Doc {
@@ -56,12 +57,44 @@ async function randomDoc() {
   return data as { docId: string }
 }
 
+async function getState() {
+  const res = await fetch(`${BACKEND_URL}/api/state`)
+  const data = await res.json()
+  return data as { displayOn: boolean }
+}
+
+async function patchState(changes: object) {
+  const res = await fetch(`${BACKEND_URL}/api/state`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(changes),
+  })
+  const data = await res.json()
+  return data
+}
+
+interface ServerState {
+  displayOn: boolean
+  version: string
+}
+
+function useServerState() {
+  const { lastJsonMessage } = useWebSocket<ServerState>('/api/state', {
+    retryOnError: true,
+    reconnectAttempts: 999999999,
+  })
+  return lastJsonMessage ?? {}
+}
+
 const api = {
   getDocToken,
   listDocs,
   setDocHidden,
   deleteDoc,
   randomDoc,
+  getState,
+  patchState,
+  useServerState,
 }
 
 export default api
