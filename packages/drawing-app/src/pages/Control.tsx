@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
+import api from '../api'
 import { CustomEditor } from '../parts/Editor'
 import { TlDisplay } from '../parts/Tlremote'
 import { GlobalStateProvider, useGlobalState } from '../state'
@@ -80,7 +81,7 @@ function Table({ ids, refresh, editHook }: TableProps) {
 
   const deleteDoc = useCallback(
     (docId: string) => {
-      fetch(`/api/v1/delete_doc?doc=${docId}`).then(() => {
+      api.deleteDoc(docId).then(() => {
         toast.success(`Deleted document: ${docId}`)
         refresh()
       })
@@ -129,9 +130,8 @@ function CtrlBar({ editHook }: EditProps) {
 
   const fetchIds = useCallback(() => {
     const promise = (async () => {
-      const res = await fetch('/api/v1/list_doc')
-      const { docs } = await res.json()
-      setIds(docs)
+      const { docs } = await api.listDocs()
+      setIds(docs.map((doc) => doc.id.toString()))
     })()
     toast.promise(promise, {
       loading: 'Fetching document list...',

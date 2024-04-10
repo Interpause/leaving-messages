@@ -25,7 +25,7 @@ function CustomSharePanel() {
   const roStore = snap.active.tlstore
   const docId = snap.active.docId
 
-  let background = `#${docId}`
+  let background = `#${docId?.split('-').pop() ?? 'notcolor'}`
   if (!colorReg.test(background)) background = 'transparent'
 
   return (

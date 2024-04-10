@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
+import api from '../api'
 import { QUERY_PARAM_DOC } from '../env'
 import { CustomEditor } from '../parts/Editor'
 import { GlobalStateProvider, useGlobalState } from '../state'
@@ -23,8 +24,7 @@ function UserPageInternal() {
       return
     } else
       (async () => {
-        const res = await fetch('/api/v1/random_doc')
-        const data = await res.json()
+        const data = await api.randomDoc()
         console.log('Received', data)
         const { docId } = data
 

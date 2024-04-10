@@ -10,7 +10,7 @@ import { ref } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import { YKeyValue } from 'y-utility/y-keyvalue'
 import * as Y from 'yjs'
-import { BACKEND_URL } from '../env'
+import api from '../api'
 import { freshTLStore } from '../utils'
 import { GlobalState } from './types'
 
@@ -33,8 +33,7 @@ export async function connectYSweet(state: GlobalState) {
 
   const promise = (async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/doc_token?doc=${docId}`)
-      const data = await res.json()
+      const data = await api.getDocToken(docId)
       console.log(`[${docId}]`, 'Token:', data)
       const { token } = data
       if (!token)

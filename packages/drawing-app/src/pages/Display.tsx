@@ -7,6 +7,7 @@ import 'swiper/css/effect-fade'
 import 'swiper/css/pagination'
 import { Autoplay, EffectFade, Mousewheel, Pagination } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import api from '../api'
 import { TlDisplay } from '../parts/Tlremote'
 
 const SPEED = 5000 // in ms
@@ -20,9 +21,8 @@ export default function DisplayPage() {
 
   useEffect(() => {
     const fetchIds = async () => {
-      const res = await fetch('/api/v1/list_doc')
-      const { docs } = await res.json()
-      setIds(docs)
+      const { docs } = await api.listDocs()
+      setIds(docs.map((doc) => doc.id))
     }
     fetchIds()
     const handle = setInterval(fetchIds, 1000)

@@ -1,12 +1,13 @@
 import { DocumentManager } from '@y-sweet/sdk'
 import Elysia from 'elysia'
-import { delDoc, insertDoc, listAllDocs } from './sql'
+import { delDoc, insertDoc, listAllDocs, setDocHidden } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
 
 const manager = new DocumentManager(process.env.YSWEET_URL)
 
 const randomId = () =>
+  'solo-' +
   '0123456789abcdef'
     .split('')
     .map(function (v, i, a) {
@@ -35,9 +36,19 @@ export const sweetPlugin = (app: Elysia) => {
       const docId = randomId()
       return { docId }
     })
-    .get('/list_doc', async () => {
-      const docs = await listAllDocs().map((id) => id.toString())
+    .get('/list_doc', async ({ query }) => {
+      const docs = await listAllDocs(query)
       return { docs }
+    })
+    .get('/set_doc_hidden', async ({ query, set }) => {
+      const docId = query[QUERY_PARAM_DOC]
+      if (!docId) {
+        set.status = 400
+        return { error: 'Please provide a document id.' }
+      }
+      const hidden = query.hidden === 'true'
+      setDocHidden(docId, hidden)
+      return { success: true }
     })
     .get('/delete_doc', async ({ query, set }) => {
       const docId = query[QUERY_PARAM_DOC]
@@ -46,5 +57,6 @@ export const sweetPlugin = (app: Elysia) => {
         return { error: 'Please provide a document id.' }
       }
       delDoc(docId)
+      return { success: true }
     })
 }
