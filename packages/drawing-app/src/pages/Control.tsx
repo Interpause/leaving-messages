@@ -8,6 +8,9 @@ import { CustomEditor } from '../parts/Editor'
 import { TlDisplay } from '../parts/Tlremote'
 import { GlobalStateProvider, useGlobalState } from '../state'
 
+import 'sortable-tablesort/sortable-base.min.css'
+import 'sortable-tablesort/sortable.min.js'
+
 interface EditProps {
   editHook: [boolean, (value: boolean) => void]
 }
@@ -17,10 +20,13 @@ function TableHead() {
     <thead>
       <tr>
         <th>Id</th>
-        <th>Preview</th>
-        <th>Edit</th>
-        <th>Hide</th>
-        <th>Delete</th>
+        <th className='no-sort'>Preview</th>
+        <th className='no-sort'>Edit</th>
+        <th className='no-sort'>Hide</th>
+        <th className='no-sort'>Delete</th>
+        <th>Created</th>
+        <th>Modified</th>
+        <th>Deleted</th>
       </tr>
     </thead>
   )
@@ -71,6 +77,9 @@ function TableRow({ doc, deleteDoc, editDoc, hideDoc }: TableRowProps) {
           🗑
         </button>
       </td>
+      <td>{doc.ctime}</td>
+      <td>{doc.mtime}</td>
+      <td>{doc.dtime}</td>
     </tr>
   )
 }
@@ -127,7 +136,7 @@ function Table({ docs, refresh, editHook }: TableProps) {
     [refresh],
   )
 
-  useEffect(() => setFuse(new Fuse(docs, { keys: ['id'] })), [docs])
+  useEffect(() => setFuse(new Fuse(docs, { keys: ['id', 'mtime'] })), [docs])
 
   const found =
     (snap.docId ? fuse?.search(snap.docId).map(({ item }) => item) : docs) ??
@@ -135,7 +144,7 @@ function Table({ docs, refresh, editHook }: TableProps) {
 
   return (
     <div className='overflow-auto mx-auto w-full md:max-w-prose'>
-      <table className='table table-pin-rows text-center'>
+      <table className='table table-pin-rows text-center sortable'>
         <TableHead />
         <tbody>
           {found.map((doc) => (
