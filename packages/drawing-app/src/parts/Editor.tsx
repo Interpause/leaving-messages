@@ -118,7 +118,7 @@ export function CustomEditor({
       props: CANVAS_PROPS,
       isLocked: true,
     }
-    if (!editor.getShape(FRAME_ID)) editor.createShape(shape)
+    if (!editor.getShape(FRAME_ID)) editor.createShape(shape).history.clear()
     else editor.updateShape(shape)
   }, [editor, editing])
 
