@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Editor } from 'tldraw'
 import 'tldraw/tldraw.css'
-import api from '../api'
+import api, { Doc } from '../api'
 import { CustomEditor } from '../parts/Editor'
 import { TlDisplay } from '../parts/Tlremote'
 import { GlobalStateProvider, useGlobalState } from '../state'
@@ -16,44 +16,33 @@ function TableHead() {
   return (
     <thead>
       <tr>
-        <th>Edit</th>
-        <th>Delete</th>
         <th>Id</th>
         <th>Preview</th>
+        <th>Edit</th>
+        <th>Hide</th>
+        <th>Delete</th>
       </tr>
     </thead>
   )
 }
 
 interface TableRowProps {
-  docId: string
-  deleteDoc: (docId: string) => void
-  editDoc: (docId: string) => void
+  doc: Doc
+  deleteDoc: (doc: Doc) => void
+  editDoc: (doc: Doc) => void
+  hideDoc: (doc: Doc) => void
 }
 
-function TableRow({ docId, deleteDoc, editDoc }: TableRowProps) {
+function TableRow({ doc, deleteDoc, editDoc, hideDoc }: TableRowProps) {
   const [display, setDisplay] = useState(false)
   return (
     <tr className='h-20'>
-      <td>
-        <button className='btn btn-ghost btn-lg' onClick={() => editDoc(docId)}>
-          ✏️
-        </button>
-      </td>
-      <td>
-        <button
-          className='btn btn-ghost btn-lg'
-          onClick={() => deleteDoc(docId)}
-        >
-          🗑
-        </button>
-      </td>
-      <td>{docId}</td>
+      <td>{doc.id}</td>
       <td className='flex flex-row items-end justify-end'>
         {display ? (
           <TlDisplay
             className='h-96 cursor-pointer'
-            docId={docId}
+            docId={doc.id}
             onClick={() => setDisplay(false)}
           />
         ) : (
@@ -65,33 +54,56 @@ function TableRow({ docId, deleteDoc, editDoc }: TableRowProps) {
           </button>
         )}
       </td>
+      <td>
+        <button className='btn btn-ghost btn-lg' onClick={() => editDoc(doc)}>
+          ✏️
+        </button>
+      </td>
+      <td>
+        <input
+          type='checkbox'
+          onChange={() => hideDoc(doc)}
+          checked={doc.hidden}
+        />
+      </td>
+      <td>
+        <button className='btn btn-ghost btn-lg' onClick={() => deleteDoc(doc)}>
+          🗑
+        </button>
+      </td>
     </tr>
   )
 }
 
 interface TableProps extends EditProps {
-  ids: string[]
+  docs: Doc[]
   refresh: () => void
 }
 
-function Table({ ids, refresh, editHook }: TableProps) {
+function Table({ docs, refresh, editHook }: TableProps) {
   const [, setEditing] = editHook
   const [snap, state] = useGlobalState()
-  const [fuse, setFuse] = useState<Fuse<string>>()
+  const [fuse, setFuse] = useState<Fuse<Doc>>()
 
   const deleteDoc = useCallback(
-    (docId: string) => {
-      api.deleteDoc(docId).then(() => {
-        toast.success(`Deleted document: ${docId}`)
-        refresh()
-      })
+    (doc: Doc) => {
+      api
+        .deleteDoc(doc.id)
+        .then(refresh)
+        .then(() => {
+          toast.dismiss()
+          toast.success(`Deleted document: ${doc}`)
+        })
+        .catch((err) =>
+          toast.error(`Failed to delete document: ${err.toString()}`),
+        )
     },
     [refresh],
   )
 
   const editDoc = useCallback(
-    (docId: string) => {
-      state.docId = docId
+    (doc: Doc) => {
+      state.docId = doc.id
       snap.func.connect()
       // NOTE: We don't use then() here to ensure they can't spam the button.
       setEditing(true)
@@ -99,22 +111,40 @@ function Table({ ids, refresh, editHook }: TableProps) {
     [setEditing, snap, state],
   )
 
-  useEffect(() => setFuse(new Fuse(ids)), [ids])
+  const hideDoc = useCallback(
+    (doc: Doc) => {
+      api
+        .setDocHidden(doc.id, !doc.hidden)
+        .then(refresh)
+        .then(() => {
+          toast.dismiss()
+          toast.success(`${doc.hidden ? 'Unhid' : 'Hid'} document: ${doc.id}`)
+        })
+        .catch((err) =>
+          toast.error(`Failed to hide document: ${err.toString()}`),
+        )
+    },
+    [refresh],
+  )
+
+  useEffect(() => setFuse(new Fuse(docs, { keys: ['docId'] })), [docs])
 
   const found =
-    (snap.docId ? fuse?.search(snap.docId).map(({ item }) => item) : ids) ?? ids
+    (snap.docId ? fuse?.search(snap.docId).map(({ item }) => item) : docs) ??
+    docs
 
   return (
-    <div className='overflow-auto mx-auto min-w-96'>
-      <table className='table table-pin-rows'>
+    <div className='overflow-auto mx-auto w-full md:max-w-prose'>
+      <table className='table table-pin-rows text-center'>
         <TableHead />
         <tbody>
-          {found.map((id) => (
+          {found.map((doc) => (
             <TableRow
-              key={id}
-              docId={id}
+              key={doc.id}
+              doc={doc}
               deleteDoc={deleteDoc}
               editDoc={editDoc}
+              hideDoc={hideDoc}
             />
           ))}
         </tbody>
@@ -125,15 +155,15 @@ function Table({ ids, refresh, editHook }: TableProps) {
 
 function CtrlBar({ editHook }: EditProps) {
   const [editing, setEditing] = editHook
-  const [ids, setIds] = useState<string[]>([])
+  const [docs, setDocs] = useState<Doc[]>([])
   const [snap, state] = useGlobalState()
 
-  const fetchIds = useCallback(() => {
+  const fetchDocs = useCallback(() => {
     const promise = (async () => {
-      const { docs } = await api.listDocs()
-      setIds(docs.map((doc) => doc.id.toString()))
+      const { docs } = await api.listDocs({ filterHidden: false })
+      setDocs(docs)
     })()
-    toast.promise(promise, {
+    return toast.promise(promise, {
       loading: 'Fetching document list...',
       success: 'Fetched document list!',
       error: (err) => `Failed to fetch: ${err.toString()}`,
@@ -141,8 +171,8 @@ function CtrlBar({ editHook }: EditProps) {
   }, [])
 
   useEffect(() => {
-    !editing && fetchIds()
-  }, [fetchIds, editing])
+    !editing && fetchDocs()
+  }, [fetchDocs, editing])
 
   const goEditMode = useCallback(() => {
     snap.func.connect()
@@ -150,8 +180,8 @@ function CtrlBar({ editHook }: EditProps) {
   }, [setEditing, snap.func])
 
   return (
-    <div className='absolute inset-0 flex flex-col p-8'>
-      <h3 className='text-2xl inset-x-0 mx-auto'>Control Panel</h3>
+    <div className='absolute inset-0 flex flex-col'>
+      <h3 className='text-2xl inset-x-0 pt-8 mx-auto'>Control Panel</h3>
       <div className='text-center'>
         <input
           type='text'
@@ -163,9 +193,9 @@ function CtrlBar({ editHook }: EditProps) {
           onFocus={() => (state.docId = '')}
         />
         <button onClick={goEditMode}>➕</button>
-        <button onClick={fetchIds}>♻️</button>
+        <button onClick={fetchDocs}>♻️</button>
       </div>
-      <Table ids={ids} refresh={fetchIds} editHook={editHook} />
+      <Table docs={docs} refresh={fetchDocs} editHook={editHook} />
     </div>
   )
 }

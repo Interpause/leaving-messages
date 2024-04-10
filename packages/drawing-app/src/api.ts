@@ -1,7 +1,7 @@
 import { ClientToken } from '@y-sweet/sdk'
 import { BACKEND_URL } from './env'
 
-interface Doc {
+export interface Doc {
   id: string
   hidden: boolean
   ctime: string
@@ -10,28 +10,45 @@ interface Doc {
 }
 
 async function getDocToken(docId: string) {
-  const res = await fetch(`${BACKEND_URL}/api/v1/doc_token?doc=${docId}`)
+  const params = new URLSearchParams({ doc: docId }).toString()
+  const res = await fetch(`${BACKEND_URL}/api/v1/doc_token?${params}`)
   const data = await res.json()
   return data as { token: ClientToken }
 }
 
-async function listDocs() {
-  const res = await fetch(`${BACKEND_URL}/api/v1/list_doc`)
+interface listDocOpts {
+  filterHidden?: boolean
+  filterShown?: boolean
+  filterDeleted?: boolean
+}
+
+async function listDocs(opts: listDocOpts = {}) {
+  const filterHidden = `${opts.filterHidden ?? true}`
+  const filterShown = `${opts.filterShown ?? false}`
+  const filterDeleted = `${opts.filterDeleted ?? true}`
+  const params = new URLSearchParams({
+    filterHidden,
+    filterShown,
+    filterDeleted,
+  }).toString()
+  const res = await fetch(`${BACKEND_URL}/api/v1/list_doc?${params}`)
   const data = await res.json()
-  console.log('listDocs', data)
   return data as { docs: Doc[] }
 }
 
 async function setDocHidden(docId: string, hidden: boolean) {
-  const res = await fetch(
-    `${BACKEND_URL}/api/v1/set_doc_hidden?doc=${docId}&hidden=${hidden}`,
-  )
+  const params = new URLSearchParams({
+    doc: docId,
+    hidden: `${hidden}`,
+  }).toString()
+  const res = await fetch(`${BACKEND_URL}/api/v1/set_doc_hidden?${params}`)
   const data = await res.json()
   return data
 }
 
 async function deleteDoc(docId: string) {
-  const res = await fetch(`${BACKEND_URL}/api/v1/delete_doc?doc=${docId}`)
+  const params = new URLSearchParams({ doc: docId }).toString()
+  const res = await fetch(`${BACKEND_URL}/api/v1/delete_doc?${params}`)
   const data = await res.json()
   return data
 }

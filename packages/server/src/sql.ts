@@ -58,6 +58,7 @@ export function listAllDocs(opts: ListAllDocsOpts = {}) {
     .filter((row) => (filterHidden ? !row.hidden : true))
     .filter((row) => (filterShown ? row.hidden : true))
     .filter((row) => (filterDeleted ? !row.dtime : true))
+    .map((row) => ({ ...row, hidden: Boolean(row.hidden) }))
 }
 
 const delDocQuery = db.query(

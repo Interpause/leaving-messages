@@ -1,5 +1,5 @@
 import { DocumentManager } from '@y-sweet/sdk'
-import Elysia from 'elysia'
+import { Elysia, t } from 'elysia'
 import { delDoc, insertDoc, listAllDocs, setDocHidden } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
@@ -22,41 +22,55 @@ const createDoc = async (docId: string) => {
 
 export const sweetPlugin = (app: Elysia) => {
   return app
-    .get('/doc_token', async ({ query, set }) => {
-      const docId = query[QUERY_PARAM_DOC]
-      if (!docId) {
-        set.status = 400
-        return { error: 'Please provide a document id.' }
-      }
-      const token = await createDoc(docId)
-      token.url = 'wss://miro-ws.interpause.dev/doc/ws'
-      return { token }
-    })
+    .get(
+      '/doc_token',
+      async ({ query }) => {
+        const docId = query[QUERY_PARAM_DOC]
+        const token = await createDoc(docId)
+        token.url = 'wss://miro-ws.interpause.dev/doc/ws'
+        return { token }
+      },
+      { query: t.Object({ [QUERY_PARAM_DOC]: t.String() }) },
+    )
     .get('/random_doc', async () => {
       const docId = randomId()
       return { docId }
     })
-    .get('/list_doc', async ({ query }) => {
-      const docs = await listAllDocs(query)
-      return { docs }
-    })
-    .get('/set_doc_hidden', async ({ query, set }) => {
-      const docId = query[QUERY_PARAM_DOC]
-      if (!docId) {
-        set.status = 400
-        return { error: 'Please provide a document id.' }
-      }
-      const hidden = query.hidden === 'true'
-      setDocHidden(docId, hidden)
-      return { success: true }
-    })
-    .get('/delete_doc', async ({ query, set }) => {
-      const docId = query[QUERY_PARAM_DOC]
-      if (!docId) {
-        set.status = 400
-        return { error: 'Please provide a document id.' }
-      }
-      delDoc(docId)
-      return { success: true }
-    })
+    .get(
+      '/list_doc',
+      async ({ query }) => {
+        const docs = listAllDocs(query)
+        return { docs }
+      },
+      {
+        query: t.Object({
+          filterHidden: t.BooleanString(),
+          filterShown: t.BooleanString(),
+          filterDeleted: t.BooleanString(),
+        }),
+      },
+    )
+    .get(
+      '/set_doc_hidden',
+      async ({ query }) => {
+        const docId = query[QUERY_PARAM_DOC]
+        setDocHidden(docId, query.hidden)
+        return { success: true }
+      },
+      {
+        query: t.Object({
+          [QUERY_PARAM_DOC]: t.String(),
+          hidden: t.BooleanString(),
+        }),
+      },
+    )
+    .get(
+      '/delete_doc',
+      async ({ query }) => {
+        const docId = query[QUERY_PARAM_DOC]
+        delDoc(docId)
+        return { success: true }
+      },
+      { query: t.Object({ [QUERY_PARAM_DOC]: t.String() }) },
+    )
 }
