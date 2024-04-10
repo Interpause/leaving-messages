@@ -1,12 +1,12 @@
 import fscreen from 'fscreen'
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
 // import 'swiper/css/effect-coverflow'
 // import 'swiper/css/free-mode'
 import 'swiper/css/pagination'
 import { Autoplay, EffectFade, Mousewheel, Pagination } from 'swiper/modules'
-import { Swiper, SwiperSlide } from 'swiper/react'
+import { Swiper, SwiperRef, SwiperSlide } from 'swiper/react'
 import api from '../api'
 import { TlDisplay } from '../parts/Tlremote'
 
@@ -22,6 +22,7 @@ function Gradient({ children }: { children?: React.ReactNode }) {
 
 export default function DisplayPage() {
   const [ids, setIds] = useState<string[]>([])
+  const swiperRef = useRef<SwiperRef>(null)
   const [event, { displayOn }] = api.useServerState()
 
   const randStartIdx = useMemo(
@@ -37,6 +38,13 @@ export default function DisplayPage() {
     })()
   }, [event])
 
+  useLayoutEffect(() => {
+    const autoplay = swiperRef.current?.swiper?.autoplay
+    if (!autoplay) return
+    if (displayOn === false) autoplay.stop()
+    else autoplay.start()
+  }, [displayOn])
+
   // NOTE: Prevent Swiper from initializing with empty slides, causing NaN glitch.
   if (ids.length < 1)
     return (
@@ -51,6 +59,7 @@ export default function DisplayPage() {
   return (
     <Gradient>
       <Swiper
+        ref={swiperRef}
         modules={[Autoplay, Pagination, EffectFade, Mousewheel]}
         className={`absolute inset-0 overflow-clip bg-white mix-blend-multiply ${displayOn === false ? 'hidden' : ''}`}
         pagination={{ type: 'fraction', verticalClass: 'fix-page-frac' }}
@@ -90,7 +99,6 @@ export default function DisplayPage() {
         loop
         loopAddBlankSlides
         mousewheel
-        onSlidesLengthChange={(swiper) => swiper.autoplay.start()}
         initialSlide={randStartIdx}
       >
         {ids.map((id) => (
