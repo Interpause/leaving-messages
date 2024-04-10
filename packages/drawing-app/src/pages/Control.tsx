@@ -47,7 +47,7 @@ function TableRow({ doc, deleteDoc, editDoc, hideDoc }: TableRowProps) {
       <td className='flex flex-row items-end justify-end'>
         {display ? (
           <TlDisplay
-            className='h-96 cursor-pointer'
+            className='w-24 md:w-48 cursor-pointer'
             docId={doc.id}
             onClick={() => setDisplay(false)}
           />
@@ -68,6 +68,7 @@ function TableRow({ doc, deleteDoc, editDoc, hideDoc }: TableRowProps) {
       <td>
         <input
           type='checkbox'
+          className='checkbox checkbox-primary'
           onChange={() => hideDoc(doc)}
           checked={doc.hidden}
         />
@@ -166,10 +167,18 @@ function CtrlBar({ editHook }: EditProps) {
   const [editing, setEditing] = editHook
   const [docs, setDocs] = useState<Doc[]>([])
   const [snap, state] = useGlobalState()
+  const [filterHidden, setFilterHidden] = useState(false)
+  const [filterShown, setFilterShown] = useState(false)
+  const [filterDeleted, setFilterDeleted] = useState(true)
 
   const fetchDocs = useCallback(() => {
     const promise = (async () => {
-      const { docs } = await api.listDocs({ filterHidden: false })
+      toast.dismiss()
+      const { docs } = await api.listDocs({
+        filterHidden,
+        filterShown,
+        filterDeleted,
+      })
       setDocs(docs)
     })()
     return toast.promise(promise, {
@@ -177,7 +186,7 @@ function CtrlBar({ editHook }: EditProps) {
       success: 'Fetched document list!',
       error: (err) => `Failed to fetch: ${err.toString()}`,
     })
-  }, [])
+  }, [filterHidden, filterShown, filterDeleted])
 
   useEffect(() => {
     !editing && fetchDocs()
@@ -189,23 +198,59 @@ function CtrlBar({ editHook }: EditProps) {
   }, [setEditing, snap.func])
 
   return (
-    <div className='absolute inset-0 flex flex-col'>
-      <h3 className='text-2xl inset-x-0 pt-8 mx-auto'>Control Panel</h3>
-      <div className='text-center'>
-        <input
-          type='text'
-          className='mr-2'
-          value={snap.docId ?? ''}
-          placeholder={snap.active.docId ?? 'Enter docId...'}
-          onChange={(e) => (state.docId = e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && goEditMode()}
-          onFocus={() => (state.docId = '')}
-        />
-        <button className='btn btn-ghost btn-lg p-0' onClick={goEditMode}>
+    <div className='absolute inset-0 flex flex-col items-center gap-2'>
+      <h3 className='text-3xl py-4'>Control Panel</h3>
+      <div className='join'>
+        <label className='input input-sm input-bordered flex items-center join-item gap-2'>
+          <span>🔍</span>
+          <input
+            type='text'
+            value={snap.docId ?? ''}
+            className='grow'
+            placeholder={snap.active.docId ?? 'Enter docId...'}
+            onChange={(e) => (state.docId = e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && goEditMode()}
+            onFocus={() => (state.docId = '')}
+          />
+        </label>
+        <button
+          className='btn btn-outline btn-sm join-item'
+          onClick={goEditMode}
+        >
           +
         </button>
-        <br />
-        <button onClick={fetchDocs}>♻️</button>
+      </div>
+      <div className='join gap-4 outline outline-[0.5px] outline-gray-400'>
+        <button className='btn btn-ghost btn-sm h-full' onClick={fetchDocs}>
+          ♻️
+        </button>
+        <label className='label cursor-pointer'>
+          <span className='label-text mr-0.5'>Shown</span>
+          <input
+            type='checkbox'
+            className='checkbox checkbox-sm'
+            checked={!filterShown}
+            onChange={() => setFilterShown(!filterShown)}
+          />
+        </label>
+        <label className='label cursor-pointer'>
+          <span className='label-text mr-0.5'>Hidden</span>
+          <input
+            type='checkbox'
+            className='checkbox checkbox-sm'
+            checked={!filterHidden}
+            onChange={() => setFilterHidden(!filterHidden)}
+          />
+        </label>
+        <label className='label cursor-pointer'>
+          <span className='label-text mr-0.5'>Deleted</span>
+          <input
+            type='checkbox'
+            className='checkbox checkbox-sm'
+            checked={!filterDeleted}
+            onChange={() => setFilterDeleted(!filterDeleted)}
+          />
+        </label>
       </div>
       <Table docs={docs} refresh={fetchDocs} editHook={editHook} />
     </div>
