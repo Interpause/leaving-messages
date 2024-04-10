@@ -127,7 +127,7 @@ function Table({ docs, refresh, editHook }: TableProps) {
     [refresh],
   )
 
-  useEffect(() => setFuse(new Fuse(docs, { keys: ['docId'] })), [docs])
+  useEffect(() => setFuse(new Fuse(docs, { keys: ['id'] })), [docs])
 
   const found =
     (snap.docId ? fuse?.search(snap.docId).map(({ item }) => item) : docs) ??
@@ -192,7 +192,10 @@ function CtrlBar({ editHook }: EditProps) {
           onKeyDown={(e) => e.key === 'Enter' && goEditMode()}
           onFocus={() => (state.docId = '')}
         />
-        <button onClick={goEditMode}>➕</button>
+        <button className='btn btn-ghost btn-lg p-0' onClick={goEditMode}>
+          +
+        </button>
+        <br />
         <button onClick={fetchDocs}>♻️</button>
       </div>
       <Table docs={docs} refresh={fetchDocs} editHook={editHook} />
