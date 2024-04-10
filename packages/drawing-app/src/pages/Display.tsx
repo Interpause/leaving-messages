@@ -12,44 +12,47 @@ import { TlDisplay } from '../parts/Tlremote'
 
 const SPEED = 5000 // in ms
 
+function Gradient({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className='fixed inset-0 from-orange-400 to-yellow-300 from-40% bg-gradient-to-b'>
+      {children}
+    </div>
+  )
+}
+
 export default function DisplayPage() {
   const [ids, setIds] = useState<string[]>([])
+  const [event, { displayOn }] = api.useServerState()
+
   const randStartIdx = useMemo(
     () => Math.floor(Math.random() * ids.length),
     [ids.length],
   )
 
   useEffect(() => {
-    const fetchIds = async () => {
+    if (event !== 'list_update') return
+    ;(async () => {
       const { docs } = await api.listDocs()
       setIds(docs.map((doc) => doc.id))
-    }
-    fetchIds()
-    const handle = setInterval(fetchIds, 1000)
-    return () => clearInterval(handle)
-  }, [])
+    })()
+  }, [event])
 
-  const { displayOn } = api.useServerState()
-
-  if (displayOn === false)
+  // NOTE: Prevent Swiper from initializing with empty slides, causing NaN glitch.
+  if (ids.length < 1)
     return (
-      <div className='fixed inset-0 bg-black flex items-center justify-center'>
-        <h3 className='text-4xl text-white'>Display is off...</h3>
-      </div>
+      <Gradient>
+        <h3 className='fixed inset-0 m-auto w-fit h-fit text-4xl text-black'>
+          Waiting for drawings...
+        </h3>
+      </Gradient>
     )
 
-  if (!ids.length)
-    return (
-      <div className='fixed inset-0 from-orange-400 to-yellow-300 from-40% bg-gradient-to-b flex items-center justify-center'>
-        <h3 className='text-4xl text-black'>Waiting for drawings...</h3>
-      </div>
-    )
-
+  // NOTE: We don't unmount Swiper even when display is off to prevent reconnecting.
   return (
-    <div className='fixed inset-0 from-orange-400 to-yellow-300 from-40% bg-gradient-to-b'>
+    <Gradient>
       <Swiper
         modules={[Autoplay, Pagination, EffectFade, Mousewheel]}
-        className='absolute inset-0 overflow-clip bg-white mix-blend-multiply'
+        className={`absolute inset-0 overflow-clip bg-white mix-blend-multiply ${displayOn === false ? 'hidden' : ''}`}
         pagination={{ type: 'fraction', verticalClass: 'fix-page-frac' }}
         autoplay={{
           disableOnInteraction: false,
@@ -87,6 +90,7 @@ export default function DisplayPage() {
         loop
         loopAddBlankSlides
         mousewheel
+        onSlidesLengthChange={(swiper) => swiper.autoplay.start()}
         initialSlide={randStartIdx}
       >
         {ids.map((id) => (
@@ -100,6 +104,11 @@ export default function DisplayPage() {
         className='fixed bottom-4 inset-x-0 mx-auto w-10 h-10 bg-black opacity-0 z-50'
         onClick={() => fscreen.requestFullscreen(document.body)}
       />
-    </div>
+      <div
+        className={`fixed inset-0 z-[9999] bg-black flex items-center justify-center ${displayOn === false ? '' : 'hidden'}`}
+      >
+        <h3 className='text-4xl text-white'>Display is off...</h3>
+      </div>
+    </Gradient>
   )
 }

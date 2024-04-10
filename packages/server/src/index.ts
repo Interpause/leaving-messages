@@ -14,24 +14,25 @@ const app = new Elysia()
     '/api/state',
     ({ store, body }) => {
       const updated = { ...store, ...body }
-      app.server?.publish(
-        'state',
-        JSON.stringify({ event: 'state', msg: updated }),
-      )
+      wsPub({ event: 'state', msg: updated })
       return Object.assign(store, updated)
     },
     { body: t.Object({}, { additionalProperties: true }) },
   )
   .ws('/api/event', {
     open(ws) {
-      ws.subscribe('state')
+      ws.subscribe('event')
       ws.send({ event: 'state', msg: app.store })
+      ws.send({ event: 'list_update' })
     },
     close(ws) {
-      ws.unsubscribe('state')
+      ws.unsubscribe('event')
     },
   })
   .listen({ hostname: '0.0.0.0', port: 3000 })
+
+export const wsPub = (data: { event: string; msg?: object }) =>
+  app.server?.publish('event', JSON.stringify(data))
 
 console.log(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,

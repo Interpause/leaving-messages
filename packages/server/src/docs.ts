@@ -1,5 +1,6 @@
 import { DocumentManager } from '@y-sweet/sdk'
 import { Elysia, t } from 'elysia'
+import { wsPub } from '.'
 import { delDoc, insertDoc, listAllDocs, setDocHidden } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
@@ -16,8 +17,8 @@ const randomId = () =>
     .join('')
 
 const createDoc = async (docId: string) => {
-  insertDoc(docId)
-  return await manager.getOrCreateDocAndToken(docId)
+  const isNew = insertDoc(docId)
+  return [isNew, await manager.getOrCreateDocAndToken(docId)] as const
 }
 
 export const docPlugin = (app: Elysia) => {
@@ -26,8 +27,9 @@ export const docPlugin = (app: Elysia) => {
       '/doc_token',
       async ({ query }) => {
         const docId = query[QUERY_PARAM_DOC]
-        const token = await createDoc(docId)
+        const [isNew, token] = await createDoc(docId)
         token.url = 'wss://miro-ws.interpause.dev/doc/ws'
+        if (isNew) wsPub({ event: 'list_update' })
         return { token }
       },
       { query: t.Object({ [QUERY_PARAM_DOC]: t.String() }) },
@@ -55,6 +57,7 @@ export const docPlugin = (app: Elysia) => {
       async ({ query }) => {
         const docId = query[QUERY_PARAM_DOC]
         setDocHidden(docId, query.hidden)
+        wsPub({ event: 'list_update' })
         return { success: true }
       },
       {
@@ -69,6 +72,7 @@ export const docPlugin = (app: Elysia) => {
       async ({ query }) => {
         const docId = query[QUERY_PARAM_DOC]
         delDoc(docId)
+        wsPub({ event: 'list_update' })
         return { success: true }
       },
       { query: t.Object({ [QUERY_PARAM_DOC]: t.String() }) },

@@ -171,7 +171,7 @@ function CtrlBar({ editHook }: EditProps) {
   const [filterHidden, setFilterHidden] = useState(false)
   const [filterShown, setFilterShown] = useState(false)
   const [filterDeleted, setFilterDeleted] = useState(true)
-  const { displayOn: serverDisplayOn } = api.useServerState()
+  const [, { displayOn: serverDisplayOn }] = api.useServerState()
 
   const fetchDocs = useCallback(() => {
     const promise = (async () => {

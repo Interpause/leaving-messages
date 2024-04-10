@@ -1,4 +1,4 @@
-import { Database, SQLQueryBindings } from 'bun:sqlite'
+import { Database, SQLQueryBindings, SQLiteError } from 'bun:sqlite'
 
 const db = new Database('db/mydb.sqlite', { create: true })
 db.run('PRAGMA journal_mode = WAL;')
@@ -19,10 +19,18 @@ interface Doc {
   dtime: string | null
 }
 
-const insertDocQuery = db.query('INSERT OR IGNORE INTO docs (id) VALUES (?);')
+const insertDocQuery = db.query('INSERT INTO docs (id) VALUES (?);')
 
 export function insertDoc(docId: string) {
-  insertDocQuery.run(docId)
+  try {
+    insertDocQuery.run(docId)
+    return true
+  } catch (err) {
+    // NOTE: Deliberately use duplicate key error to tell if document is new.
+    if (err instanceof SQLiteError && err.errno === 1555) return false
+    console.error(err)
+    throw err
+  }
 }
 
 const setDocHiddenQuery = db.query('UPDATE docs SET hidden = ? WHERE id = ?;')

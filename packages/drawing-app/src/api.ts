@@ -79,10 +79,11 @@ async function patchState(changes: object) {
   return data
 }
 
-type WSEvent = { event: 'state'; msg: ServerState }
+type WSEvent = { event: 'state'; msg: ServerState } | { event: 'list_update' }
 
 function useServerState() {
   const [lastKnown, setLastKnown] = useState<Partial<ServerState>>({})
+  const [lastEvent, setLastEvent] = useState<WSEvent['event']>()
   const { lastJsonMessage } = useWebSocket<WSEvent | null>('/api/event', {
     retryOnError: true,
     reconnectAttempts: 999999999,
@@ -91,10 +92,17 @@ function useServerState() {
   // NOTE: Websocket will publish state on open, no need to manual fetch.
   useEffect(() => {
     if (lastJsonMessage === null) return
-    if (lastJsonMessage.event === 'state') setLastKnown(lastJsonMessage.msg)
+    console.log('[server event]', lastJsonMessage)
+    const { event } = lastJsonMessage
+    if (event === 'state') setLastKnown(lastJsonMessage.msg)
+    else if (event === 'list_update') {
+      setLastEvent(undefined)
+      // Force rerender.
+      setTimeout(() => setLastEvent('list_update'))
+    } else setLastEvent(event)
   }, [lastJsonMessage])
 
-  return lastKnown
+  return [lastEvent, lastKnown] as const
 }
 
 const api = {
