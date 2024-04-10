@@ -44,15 +44,15 @@ const listAllDocsQuery = db.query<Doc, SQLQueryBindings[]>(
 )
 
 interface ListAllDocsOpts {
-  filterHidden?: boolean
-  filterShown?: boolean
-  filterDeleted?: boolean
+  filter_hidden?: boolean
+  filter_shown?: boolean
+  filter_deleted?: boolean
 }
 
 export function listAllDocs(opts: ListAllDocsOpts = {}) {
-  const filterHidden = opts.filterHidden ?? true
-  const filterShown = opts.filterShown ?? false
-  const filterDeleted = opts.filterDeleted ?? true
+  const filterHidden = opts.filter_hidden ?? true
+  const filterShown = opts.filter_shown ?? false
+  const filterDeleted = opts.filter_deleted ?? true
   return listAllDocsQuery
     .all()
     .filter((row) => (filterHidden ? !row.hidden : true))

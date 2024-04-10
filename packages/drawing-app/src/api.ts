@@ -23,13 +23,10 @@ interface listDocOpts {
 }
 
 async function listDocs(opts: listDocOpts = {}) {
-  const filterHidden = `${opts.filterHidden ?? true}`
-  const filterShown = `${opts.filterShown ?? false}`
-  const filterDeleted = `${opts.filterDeleted ?? true}`
   const params = new URLSearchParams({
-    filterHidden,
-    filterShown,
-    filterDeleted,
+    filter_hidden: `${opts.filterHidden ?? true}`,
+    filter_shown: `${opts.filterShown ?? false}`,
+    filter_deleted: `${opts.filterDeleted ?? true}`,
   }).toString()
   const res = await fetch(`${BACKEND_URL}/api/v1/list_doc?${params}`)
   const data = await res.json()

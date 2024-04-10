@@ -44,9 +44,9 @@ export const sweetPlugin = (app: Elysia) => {
       },
       {
         query: t.Object({
-          filterHidden: t.BooleanString(),
-          filterShown: t.BooleanString(),
-          filterDeleted: t.BooleanString(),
+          filter_hidden: t.BooleanString(),
+          filter_shown: t.BooleanString(),
+          filter_deleted: t.BooleanString(),
         }),
       },
     )
