@@ -84,7 +84,8 @@ type WSEvent = { event: 'state'; msg: ServerState } | { event: 'list_update' }
 function useServerState() {
   const [lastKnown, setLastKnown] = useState<Partial<ServerState>>({})
   const [lastEvent, setLastEvent] = useState<WSEvent['event']>()
-  const { lastJsonMessage } = useWebSocket<WSEvent | null>('/api/event', {
+  const url = `${BACKEND_URL.replace('http', 'ws')}/api/event`
+  const { lastJsonMessage } = useWebSocket<WSEvent | null>(url, {
     retryOnError: true,
     reconnectAttempts: 999999999,
   })
