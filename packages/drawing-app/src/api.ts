@@ -3,6 +3,11 @@ import { useEffect, useState } from 'react'
 import useWebSocket from 'react-use-websocket'
 import { BACKEND_URL } from './env'
 
+interface ServerState {
+  displayOn: boolean
+  version: string
+}
+
 export interface Doc {
   id: string
   hidden: boolean
@@ -61,7 +66,7 @@ async function randomDoc() {
 async function getState() {
   const res = await fetch(`${BACKEND_URL}/api/state`)
   const data = await res.json()
-  return data as { displayOn: boolean }
+  return data as ServerState
 }
 
 async function patchState(changes: object) {
@@ -74,24 +79,22 @@ async function patchState(changes: object) {
   return data
 }
 
-interface ServerState {
-  displayOn?: boolean
-  version?: string
-}
+type WSEvent = { event: 'state'; msg: ServerState }
 
 function useServerState() {
-  const [lastKnown, setLastKnown] = useState<ServerState | null>(null)
-  const { lastJsonMessage } = useWebSocket<ServerState | null>('/api/state', {
+  const [lastKnown, setLastKnown] = useState<Partial<ServerState>>({})
+  const { lastJsonMessage } = useWebSocket<WSEvent | null>('/api/event', {
     retryOnError: true,
     reconnectAttempts: 999999999,
   })
 
+  // NOTE: Websocket will publish state on open, no need to manual fetch.
   useEffect(() => {
-    if (lastJsonMessage !== null) return
-    getState().then((state) => setLastKnown(state))
+    if (lastJsonMessage === null) return
+    if (lastJsonMessage.event === 'state') setLastKnown(lastJsonMessage.msg)
   }, [lastJsonMessage])
 
-  return lastJsonMessage ?? lastKnown ?? {}
+  return lastKnown
 }
 
 const api = {

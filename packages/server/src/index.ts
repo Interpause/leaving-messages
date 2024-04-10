@@ -14,15 +14,18 @@ const app = new Elysia()
     '/api/state',
     ({ store, body }) => {
       const updated = { ...store, ...body }
-      app.server?.publish('state', JSON.stringify(updated))
+      app.server?.publish(
+        'state',
+        JSON.stringify({ event: 'state', msg: updated }),
+      )
       return Object.assign(store, updated)
     },
     { body: t.Object({}, { additionalProperties: true }) },
   )
-  .ws('/api/state', {
+  .ws('/api/event', {
     open(ws) {
       ws.subscribe('state')
-      ws.publish('state', ws.data.store)
+      ws.send({ event: 'state', msg: app.store })
     },
     close(ws) {
       ws.unsubscribe('state')
