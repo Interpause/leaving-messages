@@ -1,5 +1,5 @@
 import fscreen from 'fscreen'
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import 'swiper/css'
 import 'swiper/css/effect-fade'
 // import 'swiper/css/effect-coverflow'
@@ -21,11 +21,6 @@ export default function DisplayPage() {
   const swiperRef = useRef<SwiperRef>(null)
   const [event, { displayOn }] = api.useServerState()
 
-  const randStartIdx = useMemo(
-    () => Math.floor(Math.random() * ids.length),
-    [ids.length],
-  )
-
   useLayoutEffect(() => {
     if (event !== 'list_update') return
     ;(async () => {
@@ -35,11 +30,14 @@ export default function DisplayPage() {
   }, [event])
 
   useLayoutEffect(() => {
-    const autoplay = swiperRef.current?.swiper?.autoplay
-    if (!autoplay) return
+    const swiper = swiperRef.current?.swiper
+    const autoplay = swiper?.autoplay
+    if (!swiper || !autoplay) return
+
+    document.getAnimations().forEach((a) => (a.currentTime = 0))
+    swiper.slideToLoop(Math.floor(Math.random() * swiper.slides.length))
     if (displayOn === false) autoplay.stop()
     else autoplay.start()
-    document.getAnimations().forEach((a) => (a.currentTime = 0))
   }, [displayOn])
 
   // NOTE: Prevent Swiper from initializing with empty slides, causing NaN glitch.
@@ -96,7 +94,6 @@ export default function DisplayPage() {
         loop
         loopAddBlankSlides
         mousewheel
-        initialSlide={randStartIdx}
       >
         {ids.map((id) => (
           <SwiperSlide key={id} className='flex flex-col justify-center'>
