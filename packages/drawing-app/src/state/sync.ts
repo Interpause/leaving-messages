@@ -70,12 +70,13 @@ function setupSyncHandlers(
     const a = Object.values(added)
     const u = Object.values(updated)
     const r = Object.values(removed)
+    if (a.length + u.length + r.length < 1) return
     ydoc.transact(() => {
       a.forEach((o) => ystore.set(o.id, o))
       u.forEach(([, o]) => ystore.set(o.id, o))
       r.forEach((o) => ystore.delete(o.id))
     })
-    if (a.length + u.length + r.length > 0) localCallback()
+    localCallback()
   }
   // Subscribe to only user's document changes.
   const unsubTL2Y = tlstore.listen(handleTL2Y, {
@@ -98,11 +99,12 @@ function setupSyncHandlers(
       else if (action === 'delete') removeArr.push(id as TLRecord['id'])
     })
 
+    if (removeArr.length + putArr.length < 1) return
     tlstore.mergeRemoteChanges(() => {
       removeArr.length > 0 && tlstore.remove(removeArr)
       putArr.length > 0 && tlstore.put(putArr)
     })
-    if (removeArr.length + putArr.length > 0) remoteCallback()
+    remoteCallback()
   }
   ystore.on('change', handleY2TL)
   const unsubY2TL = () => ystore.off('change', handleY2TL)
@@ -144,26 +146,31 @@ function syncInitial(tlstore: TLStore, ystate: YState) {
   if (!remoteSchema) throw new Error('Document metadata corrupted!')
 
   const records = ystore.yarray.toJSON().map(({ val }) => val)
-  const migrated = tlstore.schema.migrateStoreSnapshot({
-    schema: remoteSchema,
-    store: Object.fromEntries(records.map((r) => [r.id, r])),
-  })
-  // NOTE: This shouldn't be possible given the schema check above.
-  if (migrated.type === 'error') throw new Error(migrated.reason)
+  let store = Object.fromEntries(records.map((r) => [r.id, r]))
 
-  // Sync migrated records to Yjs.
-  ydoc.transact(() => {
-    // Delete records removed during migration.
-    records
-      .filter(({ id }) => !migrated.value[id])
-      .forEach(({ id }) => ystore.delete(id))
-    // update TLStore with migrated records.
-    Object.values(migrated.value).forEach((r) => ystore.set(r.id, r))
-    meta.set('schema', localSchema)
-  })
+  if (compareSchemas(remoteSchema, localSchema) < 0) {
+    const migrated = tlstore.schema.migrateStoreSnapshot({
+      schema: remoteSchema,
+      store,
+    })
+    // NOTE: This shouldn't be possible given the schema check above.
+    if (migrated.type === 'error') throw new Error(migrated.reason)
 
+    // Sync migrated records to Yjs.
+    ydoc.transact(() => {
+      // Delete records removed during migration.
+      records
+        .filter(({ id }) => !migrated.value[id])
+        .forEach(({ id }) => ystore.delete(id))
+      // update TLStore with migrated records.
+      Object.values(migrated.value).forEach((r) => ystore.set(r.id, r))
+      meta.set('schema', localSchema)
+    })
+
+    store = migrated.value
+  }
   // Load records to TLStore.
-  tlstore.loadSnapshot({ store: migrated.value, schema: localSchema })
+  tlstore.loadSnapshot({ store, schema: localSchema })
 }
 
 function createYState(docId: string) {
@@ -270,11 +277,14 @@ export function initSync(state: GlobalState) {
     const unsubDisconnect = () => conn.off('status', handleDisconnect)
 
     /* Cleanup when token changes. */
-    state.active.cleanPrev = () => {
+    active.cleanPrev = () => {
       unsubSync()
       unsubDisconnect()
       cleanup()
     }
   })
-  return unsub
+  return () => {
+    unsub()
+    state.active.cleanPrev && state.active.cleanPrev()
+  }
 }
