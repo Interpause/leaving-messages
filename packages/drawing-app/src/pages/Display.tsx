@@ -10,7 +10,7 @@ import { Swiper, SwiperRef, SwiperSlide } from 'swiper/react'
 import api from '../api'
 import { TlDisplay } from '../parts/Tlremote'
 
-const SPEED = 5000 // in ms
+const SPEED = 4000 // in ms
 
 function Gradient({ children }: { children?: React.ReactNode }) {
   return <div className='fixed inset-0 gradient-anim'>{children}</div>

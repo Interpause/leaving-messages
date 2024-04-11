@@ -1,3 +1,4 @@
+import fscreen from 'fscreen'
 import { useLayoutEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Editor } from 'tldraw'
@@ -8,8 +9,84 @@ import { CustomEditor } from '../parts/Editor'
 import { GlobalStateProvider, useGlobalState } from '../state'
 import { getUrl } from '../utils'
 
-function UserPageInternal() {
+interface SelectPageProps {
+  editHook: [boolean, (isEditing: boolean) => void]
+}
+
+function SelectPageInternal({ editHook }: SelectPageProps) {
   const [snap, state] = useGlobalState()
+  const [editing, setEditing] = editHook
+
+  const handleSelfDoodle = () => {
+    const promise = (async () => {
+      const data = await api.randomDoc()
+      console.log('Received', data)
+      const { docId } = data
+
+      if (!docId) throw new Error('Did not receive docId.')
+
+      state.docId = docId
+      await snap.func.connect()
+
+      setEditing(true)
+    })()
+
+    toast.promise(promise, {
+      loading: 'Creating document...',
+      success: 'Document created!',
+      error: (err) => `Failed to create document: ${err.toString()}`,
+    })
+  }
+
+  const handleRoomDoodle = () => {
+    const promise = (async () => {
+      const data = await api.sharedDoc()
+      console.log('Received', data)
+      const { docId } = data
+
+      if (!docId) throw new Error('Did not receive docId.')
+
+      state.docId = docId
+      await snap.func.connect()
+
+      setEditing(true)
+    })()
+
+    toast.promise(promise, {
+      loading: 'Loading room...',
+      success: 'Loaded!',
+      error: (err) => `Failed to load: ${err.toString()}`,
+    })
+  }
+
+  return (
+    <div className={`fixed inset-0 bg-gray-950 ${editing ? 'hidden' : ''}`}>
+      <div className='absolute inset-0 bg-gray-900 mx-auto max-w-prose flex flex-col items-center justify-center gap-4'>
+        <h1
+          className='text-4xl text-center'
+          onClick={() => fscreen.requestFullscreen(document.body)}
+        >
+          Welcome!
+        </h1>
+        <button
+          className='btn btn-primary w-3/5 md:w-1/5'
+          onClick={handleSelfDoodle}
+        >
+          Self-doodle
+        </button>
+        <button
+          className='btn btn-secondary w-3/5 md:w-1/5'
+          onClick={handleRoomDoodle}
+        >
+          C-Sketch
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function UserPageInternal() {
+  const [, state] = useGlobalState()
   const [editor, setEditor] = useState<Editor>()
   const [editing, setEditing] = useState(false)
 
@@ -22,23 +99,8 @@ function UserPageInternal() {
     ) {
       setEditing(true)
       return
-    } else
-      (async () => {
-        const data = await api.randomDoc()
-        console.log('Received', data)
-        const { docId } = data
-
-        if (!docId) {
-          toast.error('Failed to create document.')
-          return
-        }
-
-        state.docId = docId
-        await snap.func.connect()
-
-        setEditing(true)
-      })()
-  }, [editing, snap.func, state])
+    }
+  }, [editing, state])
 
   return (
     <div className='fixed inset-0 overflow-hidden'>
@@ -46,11 +108,7 @@ function UserPageInternal() {
         editorHook={[editor, setEditor]}
         editHook={[editing, setEditing]}
       />
-      <div
-        className={`fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-40 ${editing ? 'hidden' : ''}`}
-      >
-        <p className='text-4xl text-white'>Loading! Please wait...</p>
-      </div>
+      <SelectPageInternal editHook={[editing, setEditing]} />
     </div>
   )
 }

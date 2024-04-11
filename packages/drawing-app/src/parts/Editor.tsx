@@ -1,5 +1,6 @@
 import fscreen from 'fscreen'
 import { useLayoutEffect, useMemo } from 'react'
+import toast from 'react-hot-toast'
 import {
   DefaultFillStyle,
   DefaultStylePanel,
@@ -141,7 +142,7 @@ export function CustomEditor({
       // ^ instead of complete hide, do per component override instead.
       /* HAS TO BE THE MUTABLE VERSION (which doesn't trigger rerender...). */
       store={state.active.tlstore}
-      className='absolute inset-0'
+      className={`absolute inset-0 ${editing ? '' : 'hidden'}`}
       /* NOTE: convenient to use this editor rather than create one for preview. */
       onMount={setEditor}
       initialState='draw'
@@ -154,7 +155,12 @@ export function CustomEditor({
             <TldrawUiButton
               type='menu'
               className='text-center'
-              onClick={() => setEditing(false)}
+              onClick={() => {
+                setEditing(false)
+                toast.dismiss()
+                toast.success('Done!')
+                setTimeout(() => (state.docId = undefined))
+              }}
             >
               ✓ Done
             </TldrawUiButton>

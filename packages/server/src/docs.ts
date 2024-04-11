@@ -4,7 +4,7 @@ import { wsPub } from '.'
 import { delDoc, insertDoc, listAllDocs, setDocHidden } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
-const TIME_LIMIT = 15
+const TIME_LIMIT = 0.5
 
 const manager = new DocumentManager(process.env.YSWEET_URL)
 
@@ -46,7 +46,7 @@ export const docPlugin = (app: Elysia) => {
         store.sharedDocId = docId
         store.sharedDocTime = now
       }
-      return store.sharedDocId
+      return { docId: store.sharedDocId }
     })
     .get(
       '/list_doc',

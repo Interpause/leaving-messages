@@ -63,6 +63,12 @@ async function randomDoc() {
   return data as { docId: string }
 }
 
+async function sharedDoc() {
+  const res = await fetch(`${BACKEND_URL}/api/v1/shared_doc`)
+  const data = await res.json()
+  return data as { docId: string }
+}
+
 async function getState() {
   const res = await fetch(`${BACKEND_URL}/api/state`)
   const data = await res.json()
@@ -112,6 +118,7 @@ const api = {
   setDocHidden,
   deleteDoc,
   randomDoc,
+  sharedDoc,
   getState,
   patchState,
   useServerState,
