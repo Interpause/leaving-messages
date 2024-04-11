@@ -40,13 +40,30 @@ export default function App() {
     case 'home':
       return (
         <div className='fixed inset-0 flex items-center justify-center flex-col gap-1'>
-          <h3 className='text-2xl text-center'>Choose Operation Mode</h3>
-          <div>
-            <button onClick={() => setMode('control')}>Control</button>
-            <button onClick={() => setMode('display')}>Display</button>
-            <button onClick={() => setMode('user')}>User</button>
+          <h3 className='text-3xl text-center'>Choose Operation Mode</h3>
+          <div className='join w-5/6 md:w-80'>
+            <button
+              className='btn join-item flex-1'
+              onClick={() => setMode('control')}
+            >
+              Control
+            </button>
+            <button
+              className='btn join-item flex-1'
+              onClick={() => setMode('display')}
+            >
+              Display
+            </button>
+            <button
+              className='btn join-item flex-1'
+              onClick={() => setMode('user')}
+            >
+              User
+            </button>
           </div>
-          <button onClick={toggleEruda}>Toggle Eruda</button>
+          <button className='btn' onClick={toggleEruda}>
+            Toggle Eruda
+          </button>
         </div>
       )
     case 'control':
