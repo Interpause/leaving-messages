@@ -4,11 +4,11 @@ import { wsPub } from '.'
 import { delDoc, insertDoc, listAllDocs, setDocHidden } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
+const TIME_LIMIT = 15
 
 const manager = new DocumentManager(process.env.YSWEET_URL)
 
 const randomId = () =>
-  'solo-' +
   '0123456789abcdef'
     .split('')
     .map(function (v, i, a) {
@@ -23,6 +23,7 @@ const createDoc = async (docId: string) => {
 
 export const docPlugin = (app: Elysia) => {
   return app
+    .state({ sharedDocId: '', sharedDocTime: 0 })
     .get(
       '/doc_token',
       async ({ query }) => {
@@ -35,8 +36,17 @@ export const docPlugin = (app: Elysia) => {
       { query: t.Object({ [QUERY_PARAM_DOC]: t.String() }) },
     )
     .get('/random_doc', async () => {
-      const docId = randomId()
+      const docId = 'solo-' + randomId()
       return { docId }
+    })
+    .get('/shared_doc', async ({ store }) => {
+      const now = Date.now() / 1000 / 60
+      if (store.sharedDocId === '' || now - store.sharedDocTime > TIME_LIMIT) {
+        const docId = 'shared-' + randomId()
+        store.sharedDocId = docId
+        store.sharedDocTime = now
+      }
+      return store.sharedDocId
     })
     .get(
       '/list_doc',
