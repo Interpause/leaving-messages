@@ -43,3 +43,4 @@ package-lock.json
 
 /db/*
 !/db/.keep
+/db-old

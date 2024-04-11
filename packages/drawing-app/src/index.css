@@ -115,7 +115,7 @@ button:focus-visible {
     background-position-y: 0vh;
   } 
   50% {
-    background-position-y: -20vh;
+    background-position-y: -30vh;
   }
   100% {
     background-position-y: 0vh;
@@ -124,7 +124,7 @@ button:focus-visible {
 
 .gradient-anim {
   background-image: linear-gradient(to bottom, #fb923c 40%, #fde047);
-  background-size: 100% 120vh;
+  background-size: 100% 130vh;
 
   animation-name: gradient-anim;
   animation-iteration-count: infinite;
