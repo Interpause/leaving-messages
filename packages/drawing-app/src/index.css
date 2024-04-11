@@ -109,3 +109,26 @@ button:focus-visible {
   font-size: 1.25rem;
   line-height: 1.75rem;
 }
+
+@keyframes gradient-anim {
+  0% {
+    background-position-y: 0vh;
+  } 
+  50% {
+    background-position-y: -20vh;
+  }
+  100% {
+    background-position-y: 0vh;
+  }
+}
+
+.gradient-anim {
+  background-image: linear-gradient(to bottom, #fb923c 40%, #fde047);
+  background-size: 100% 120vh;
+
+  animation-name: gradient-anim;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-duration: 6s;
+  animation-timing-function: linear;
+}

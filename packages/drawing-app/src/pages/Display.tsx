@@ -13,11 +13,7 @@ import { TlDisplay } from '../parts/Tlremote'
 const SPEED = 5000 // in ms
 
 function Gradient({ children }: { children?: React.ReactNode }) {
-  return (
-    <div className='fixed inset-0 from-orange-400 to-yellow-300 from-40% bg-gradient-to-b'>
-      {children}
-    </div>
-  )
+  return <div className='fixed inset-0 gradient-anim'>{children}</div>
 }
 
 export default function DisplayPage() {
@@ -43,6 +39,7 @@ export default function DisplayPage() {
     if (!autoplay) return
     if (displayOn === false) autoplay.stop()
     else autoplay.start()
+    document.getAnimations().forEach((a) => (a.currentTime = 0))
   }, [displayOn])
 
   // NOTE: Prevent Swiper from initializing with empty slides, causing NaN glitch.
