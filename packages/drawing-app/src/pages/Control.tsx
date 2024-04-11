@@ -41,15 +41,31 @@ interface TableRowProps {
 
 function TableRow({ doc, deleteDoc, editDoc, hideDoc }: TableRowProps) {
   const [display, setDisplay] = useState(false)
+  // NOTE: Have to use increment to ensure rerender occurs else timeout can glitch.
+  const [highlight, setHighlight] = useState<number>(0)
+
+  // NOTE:
+  // For some godforsaken reason, y-sweet sends out all the updates if any client
+  // does an initial sync. This is not a problem when the doc has only one client
+  // since the initial sync occurs before the change handler is registered. But
+  // if multiple clients are connected, their change handlers will trigger even
+  // though there is no actual change.
+  useLayoutEffect(() => {
+    if (highlight === 0) return
+    const handle = setTimeout(() => setHighlight(0), 1000)
+    return () => clearTimeout(handle)
+  }, [highlight])
+
   return (
     <tr className='h-20'>
       <td>{doc.id}</td>
       <td className='flex flex-row items-end justify-end'>
         {display ? (
           <TlDisplay
-            className='w-24 md:w-48 cursor-pointer'
+            className={`w-24 md:w-48 cursor-pointer border-4 ${highlight > 0 ? 'border-red-600' : 'border-transparent'}`}
             docId={doc.id}
             onClick={() => setDisplay(false)}
+            onRemoteChange={() => setHighlight((h) => h + 1)}
           />
         ) : (
           <button

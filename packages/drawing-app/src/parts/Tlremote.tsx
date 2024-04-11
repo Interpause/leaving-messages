@@ -63,11 +63,22 @@ export function Tlremote({ editor, disabled, ...props }: TlremoteProps) {
 export interface TlDisplay extends ComponentProps<'div'> {
   docId: string
   disabled?: boolean
+  onLocalChange?: () => void
+  onRemoteChange?: () => void
 }
 
-export function TlDisplay({ docId, ...props }: TlDisplay) {
+export function TlDisplay({
+  docId,
+  onLocalChange,
+  onRemoteChange,
+  ...props
+}: TlDisplay) {
   return (
-    <GlobalStateProvider docId={docId}>
+    <GlobalStateProvider
+      docId={docId}
+      onLocalChange={onLocalChange}
+      onRemoteChange={onRemoteChange}
+    >
       <TlDisplayInternal {...props} />
     </GlobalStateProvider>
   )
