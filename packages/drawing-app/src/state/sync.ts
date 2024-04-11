@@ -55,18 +55,25 @@ export async function connectYSweet(state: GlobalState) {
   else await promise
 }
 
-function setupSyncHandlers(tlstore: TLStore, ystate: YState) {
+function setupSyncHandlers(
+  tlstore: TLStore,
+  ystate: YState,
+  localCallback: () => void,
+  remoteCallback: () => void,
+) {
   const { ydoc, ystore, meta } = ystate
 
   /* Sync changes from TLStore to Yjs. */
   const handleTL2Y: StoreListener<TLRecord> = ({
     changes: { added, updated, removed },
-  }) =>
+  }) => {
     ydoc.transact(() => {
       Object.values(added).forEach((o) => ystore.set(o.id, o))
       Object.values(updated).forEach(([, o]) => ystore.set(o.id, o))
       Object.values(removed).forEach((o) => ystore.delete(o.id))
     })
+    localCallback()
+  }
   // Subscribe to only user's document changes.
   const unsubTL2Y = tlstore.listen(handleTL2Y, {
     source: 'user',
@@ -92,6 +99,7 @@ function setupSyncHandlers(tlstore: TLStore, ystate: YState) {
       removeArr.length > 0 && tlstore.remove(removeArr)
       putArr.length > 0 && tlstore.put(putArr)
     })
+    remoteCallback()
   }
   ystore.on('change', handleY2TL)
   const unsubY2TL = () => ystore.off('change', handleY2TL)
@@ -217,8 +225,15 @@ export function initSync(state: GlobalState) {
 
     active.tlstore = ref(freshTLStore())
     const tlstore = active.tlstore.store!
+    const localCallback = state.func.onLocalChange ?? (() => {})
+    const remoteCallback = state.func.onRemoteChange ?? (() => {})
 
-    const unsubSync = setupSyncHandlers(tlstore, ystate)
+    const unsubSync = setupSyncHandlers(
+      tlstore,
+      ystate,
+      localCallback,
+      remoteCallback,
+    )
     syncInitial(tlstore, ystate)
 
     active.tlstore = ref({

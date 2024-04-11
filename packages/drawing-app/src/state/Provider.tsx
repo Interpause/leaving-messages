@@ -11,11 +11,15 @@ import { GlobalState } from './types'
 export interface GlobalStateProviderProps extends React.PropsWithChildren {
   docId?: string
   isMain?: boolean
+  onLocalChange?: () => void
+  onRemoteChange?: () => void
 }
 
 export function GlobalStateProvider({
   docId,
   isMain,
+  onLocalChange,
+  onRemoteChange,
   children,
 }: GlobalStateProviderProps) {
   const state: GlobalState = useRef(
@@ -46,6 +50,14 @@ export function GlobalStateProvider({
       unsub2()
     }
   }, [state, docId, isMain])
+
+  useLayoutEffect(() => {
+    state.func.onLocalChange = onLocalChange
+  }, [state.func, onLocalChange])
+
+  useLayoutEffect(() => {
+    state.func.onRemoteChange = onRemoteChange
+  }, [state.func, onRemoteChange])
 
   return (
     <GlobalStateContext.Provider value={state}>
