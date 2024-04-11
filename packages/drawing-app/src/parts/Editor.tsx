@@ -112,14 +112,17 @@ export function CustomEditor({
   useLayoutEffect(() => {
     // NOTE: Purposefully depend on isEditing to implicitly recreate frame if user deletes it.
     if (!editor || !editing) return
+    const old = editor.getShape(FRAME_ID)
     const shape: Parameters<typeof editor.updateShape>[0] = {
       id: FRAME_ID,
       type: 'frame',
       props: CANVAS_PROPS,
       isLocked: true,
     }
-    if (!editor.getShape(FRAME_ID)) editor.createShape(shape).history.clear()
-    else editor.updateShape(shape)
+    if (!old) editor.createShape(shape).history.clear()
+    // NOTE: Prevents writing to the doc as soon as it opens...
+    else if (JSON.stringify(old.props) !== JSON.stringify(CANVAS_PROPS))
+      editor.updateShape(shape)
   }, [editor, editing])
 
   // Zoom to canvas.

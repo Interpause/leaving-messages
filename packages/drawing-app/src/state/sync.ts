@@ -67,12 +67,15 @@ function setupSyncHandlers(
   const handleTL2Y: StoreListener<TLRecord> = ({
     changes: { added, updated, removed },
   }) => {
+    const a = Object.values(added)
+    const u = Object.values(updated)
+    const r = Object.values(removed)
     ydoc.transact(() => {
-      Object.values(added).forEach((o) => ystore.set(o.id, o))
-      Object.values(updated).forEach(([, o]) => ystore.set(o.id, o))
-      Object.values(removed).forEach((o) => ystore.delete(o.id))
+      a.forEach((o) => ystore.set(o.id, o))
+      u.forEach(([, o]) => ystore.set(o.id, o))
+      r.forEach((o) => ystore.delete(o.id))
     })
-    localCallback()
+    if (a.length + u.length + r.length > 0) localCallback()
   }
   // Subscribe to only user's document changes.
   const unsubTL2Y = tlstore.listen(handleTL2Y, {
@@ -99,7 +102,7 @@ function setupSyncHandlers(
       removeArr.length > 0 && tlstore.remove(removeArr)
       putArr.length > 0 && tlstore.put(putArr)
     })
-    remoteCallback()
+    if (removeArr.length + putArr.length > 0) remoteCallback()
   }
   ystore.on('change', handleY2TL)
   const unsubY2TL = () => ystore.off('change', handleY2TL)
