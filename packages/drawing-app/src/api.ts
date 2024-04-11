@@ -85,7 +85,16 @@ async function patchState(changes: object) {
   return data
 }
 
-type WSEvent = { event: 'state'; msg: ServerState } | { event: 'list_update' }
+async function refreshAll() {
+  const res = await fetch(`${BACKEND_URL}/api/refresh_all`)
+  const data = await res.json()
+  return data
+}
+
+type WSEvent =
+  | { event: 'state'; msg: ServerState }
+  | { event: 'list_update' }
+  | { event: 'refresh_all' }
 
 function useServerState() {
   const [lastKnown, setLastKnown] = useState<Partial<ServerState>>({})
@@ -106,7 +115,8 @@ function useServerState() {
       setLastEvent(undefined)
       // Force rerender.
       setTimeout(() => setLastEvent('list_update'))
-    } else setLastEvent(event)
+    } else if (event === 'refresh_all') window.location.reload()
+    else setLastEvent(event)
   }, [lastJsonMessage])
 
   return [lastEvent, lastKnown] as const
@@ -121,6 +131,7 @@ const api = {
   sharedDoc,
   getState,
   patchState,
+  refreshAll,
   useServerState,
 }
 

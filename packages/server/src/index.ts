@@ -19,6 +19,9 @@ const app = new Elysia()
     },
     { body: t.Object({}, { additionalProperties: true }) },
   )
+  .get('/api/refresh_all', async () => {
+    wsPub({ event: 'refresh_all' })
+  })
   .ws('/api/event', {
     open(ws) {
       ws.subscribe('event')

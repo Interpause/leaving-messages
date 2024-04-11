@@ -267,6 +267,12 @@ function CtrlBar({ editHook }: EditProps) {
               })
             }}
           />
+          <button
+            className='btn btn-outline btn-sm h-full join-item'
+            onClick={api.refreshAll}
+          >
+            ♻️
+          </button>
           <span className='grow'></span>
           <label className='label cursor-pointer'>
             <input
