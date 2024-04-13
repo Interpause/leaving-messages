@@ -60,25 +60,33 @@ function SelectPageInternal({ editHook }: SelectPageProps) {
   }
 
   return (
-    <div className={`fixed inset-0 bg-gray-950 ${editing ? 'hidden' : ''}`}>
-      <div className='absolute inset-0 bg-gray-900 mx-auto max-w-prose flex flex-col items-center justify-center gap-4'>
+    <div
+      className={`fixed inset-0 bg-yellow-400 text-black ${editing ? 'hidden' : ''}`}
+    >
+      <div className='absolute inset-0 bg-orange-400 mx-auto max-w-prose flex flex-col items-center justify-center gap-4'>
         <h1
-          className='text-4xl text-center'
+          className='text-5xl text-center'
           onClick={() => fscreen.requestFullscreen(document.body)}
         >
-          Welcome!
+          🌟lighten up!🎨
+        </h1>
+        <h1
+          className='text-xl text-center'
+          onClick={() => fscreen.requestFullscreen(document.body)}
+        >
+          select doodling mode:
         </h1>
         <button
-          className='btn btn-primary w-3/5 md:w-1/5'
+          className='btn btn-error w-3/5 md:w-1/5'
           onClick={handleSelfDoodle}
         >
-          Self-doodle
+          🍃your own pace
         </button>
         <button
-          className='btn btn-secondary w-3/5 md:w-1/5'
+          className='btn btn-warning w-3/5 md:w-1/5'
           onClick={handleRoomDoodle}
         >
-          C-Sketch
+          🙌with others
         </button>
       </div>
     </div>
