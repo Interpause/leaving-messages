@@ -113,9 +113,16 @@ function SelectPageInternal({ editHook, setPrompt, setMode }: SelectPageProps) {
 }
 
 const renderTime = ({ remainingTime }: { remainingTime: number }) => {
-  if (remainingTime === 0) return <div className='text-xl'>Out of Time!</div>
+  if (remainingTime === 0)
+    return (
+      <p className='text-base'>
+        Out of
+        <br />
+        Time!
+      </p>
+    )
 
-  return <div className='text-5xl'>{remainingTime}</div>
+  return <p className='text-4xl'>{remainingTime}</p>
 }
 
 const MyComponentInFront = track(() => {
@@ -132,7 +139,7 @@ const MyComponentInFront = track(() => {
 
   return (
     <div
-      className='absolute -translate-x-full -translate-y-full rounded-[8px] p-4'
+      className='absolute -translate-x-full -translate-y-full rounded-[8px] p-2'
       style={{
         top: Math.max(0, coords.y),
         left: Math.max(0, coords.x),
@@ -145,6 +152,7 @@ const MyComponentInFront = track(() => {
         duration={DURATION}
         colors={['#00ff00', '#ffff00', '#ff0000']}
         colorsTime={[DURATION, Math.floor((DURATION * 2) / 3), 0]}
+        size={100}
       >
         {renderTime}
       </CountdownCircleTimer>
