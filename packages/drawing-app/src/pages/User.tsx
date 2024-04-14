@@ -11,9 +11,10 @@ import { getUrl } from '../utils'
 
 interface SelectPageProps {
   editHook: [boolean, (isEditing: boolean) => void]
+  setPrompt: (prompt?: string) => void
 }
 
-function SelectPageInternal({ editHook }: SelectPageProps) {
+function SelectPageInternal({ editHook, setPrompt }: SelectPageProps) {
   const [snap, state] = useGlobalState()
   const [editing, setEditing] = editHook
 
@@ -29,6 +30,7 @@ function SelectPageInternal({ editHook }: SelectPageProps) {
       await snap.func.connect()
 
       setEditing(true)
+      setPrompt('Draw what you want for lunch!')
     })()
 
     toast.promise(promise, {
@@ -50,6 +52,7 @@ function SelectPageInternal({ editHook }: SelectPageProps) {
       await snap.func.connect()
 
       setEditing(true)
+      setPrompt('Cats @ Changi City Point')
     })()
 
     toast.promise(promise, {
@@ -97,6 +100,7 @@ function UserPageInternal() {
   const [, state] = useGlobalState()
   const [editor, setEditor] = useState<Editor>()
   const [editing, setEditing] = useState(false)
+  const [prompt, setPrompt] = useState<string>()
 
   useLayoutEffect(() => {
     if (editing) return
@@ -115,8 +119,12 @@ function UserPageInternal() {
       <CustomEditor
         editorHook={[editor, setEditor]}
         editHook={[editing, setEditing]}
+        canvasName={prompt}
       />
-      <SelectPageInternal editHook={[editing, setEditing]} />
+      <SelectPageInternal
+        editHook={[editing, setEditing]}
+        setPrompt={setPrompt}
+      />
     </div>
   )
 }

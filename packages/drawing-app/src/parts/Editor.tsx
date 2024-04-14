@@ -88,6 +88,7 @@ function CustomToolbar() {
 export interface CustomEditorProps {
   editorHook: [Editor | undefined, (editor: Editor | undefined) => void]
   editHook: [boolean, (isEditing: boolean) => void]
+  canvasName?: string
   fullMode?: boolean
 }
 
@@ -96,6 +97,7 @@ export interface CustomEditorProps {
 export function CustomEditor({
   editorHook,
   editHook,
+  canvasName,
   fullMode,
 }: CustomEditorProps) {
   const [, state] = useGlobalState()
@@ -114,17 +116,18 @@ export function CustomEditor({
     // NOTE: Purposefully depend on isEditing to implicitly recreate frame if user deletes it.
     if (!editor || !editing) return
     const old = editor.getShape(FRAME_ID)
+    const props = { ...CANVAS_PROPS, name: canvasName ?? 'Draw Here!' }
     const shape: Parameters<typeof editor.updateShape>[0] = {
       id: FRAME_ID,
       type: 'frame',
-      props: CANVAS_PROPS,
+      props: props,
       isLocked: true,
     }
     if (!old) editor.createShape(shape).history.clear()
     // NOTE: Prevents writing to the doc as soon as it opens...
-    else if (JSON.stringify(old.props) !== JSON.stringify(CANVAS_PROPS))
+    else if (JSON.stringify(old.props) !== JSON.stringify(props))
       editor.updateShape(shape)
-  }, [editor, editing])
+  }, [editor, editing, canvasName])
 
   // Zoom to canvas.
   useLayoutEffect(() => {
