@@ -25,6 +25,7 @@ function CustomSharePanel() {
   const [snap] = useGlobalState()
   const roStore = snap.active.tlstore
   const docId = snap.active.docId
+  const numUsers = snap.active.numUsers
 
   let background = `#${docId?.split('-').pop() ?? 'notcolor'}`
   if (!colorReg.test(background)) background = 'transparent'
@@ -53,6 +54,7 @@ function CustomSharePanel() {
                 : roStore.status}
           </span>
         </p>
+        {numUsers > 1 ? <p className='float-right mb-1'>👤 {numUsers}</p> : ''}
       </div>
     </DefaultStylePanel>
   )

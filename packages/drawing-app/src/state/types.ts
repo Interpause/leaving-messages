@@ -14,6 +14,7 @@ export interface ActiveState {
   docId?: string
   tlstore: TLStoreWithStatus
   cleanPrev?: () => void
+  numUsers: number
 }
 
 export interface GlobalState {

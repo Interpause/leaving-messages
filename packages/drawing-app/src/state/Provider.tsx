@@ -24,7 +24,7 @@ export function GlobalStateProvider({
 }: GlobalStateProviderProps) {
   const state: GlobalState = useRef(
     proxy({
-      active: { tlstore: ref(freshTLStore()) },
+      active: { tlstore: ref(freshTLStore()), numUsers: 0 },
       func: { connect: () => connectYSweet(state), toast },
     }),
   ).current

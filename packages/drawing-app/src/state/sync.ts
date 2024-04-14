@@ -237,7 +237,10 @@ export function initSync(state: GlobalState) {
     const tlstore = active.tlstore.store!
     const localCallback = state.func.onLocalChange ?? (() => {})
     const remoteCallback = state.func.onRemoteChange ?? (() => {})
+    const presenceCallback = () =>
+      (state.active.numUsers = conn.awareness.getStates().size)
 
+    conn.awareness.on('change', presenceCallback)
     const unsubSync = setupSyncHandlers(
       tlstore,
       ystate,
@@ -281,6 +284,7 @@ export function initSync(state: GlobalState) {
       unsubSync()
       unsubDisconnect()
       cleanup()
+      conn.awareness.off('change', presenceCallback)
     }
   })
   return () => {
