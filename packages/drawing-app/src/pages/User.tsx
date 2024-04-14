@@ -34,7 +34,7 @@ function SelectPageInternal({ editHook, setPrompt, setMode }: SelectPageProps) {
       await snap.func.connect()
 
       setEditing(true)
-      setPrompt('Draw what you want for lunch!')
+      setPrompt(data.prompt)
       setMode('self')
     })()
 
@@ -57,7 +57,7 @@ function SelectPageInternal({ editHook, setPrompt, setMode }: SelectPageProps) {
       await snap.func.connect()
 
       setEditing(true)
-      setPrompt('Cats @ Changi City Point')
+      setPrompt(data.prompt)
       setMode('room')
       setTimeout(
         () => {

@@ -60,13 +60,13 @@ async function deleteDoc(docId: string) {
 async function randomDoc() {
   const res = await fetch(`${BACKEND_URL}/api/v1/random_doc`)
   const data = await res.json()
-  return data as { docId: string }
+  return data as { docId: string; prompt: string }
 }
 
 async function sharedDoc() {
   const res = await fetch(`${BACKEND_URL}/api/v1/shared_doc`)
   const data = await res.json()
-  return data as { docId: string }
+  return data as { docId: string; prompt: string }
 }
 
 async function getState() {

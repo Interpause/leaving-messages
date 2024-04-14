@@ -1,6 +1,7 @@
 import { DocumentManager } from '@y-sweet/sdk'
 import { Elysia, t } from 'elysia'
 import { wsPub } from '.'
+import { sharedPrompts, soloPrompts } from './prompts'
 import { delDoc, insertDoc, listAllDocs, setDocHidden } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
@@ -23,7 +24,7 @@ const createDoc = async (docId: string) => {
 
 export const docPlugin = (app: Elysia) => {
   return app
-    .state({ sharedDocId: '', sharedDocTime: 0 })
+    .state({ sharedDocId: '', sharedDocTime: 0, sharedDocPrompt: '' })
     .get(
       '/doc_token',
       async ({ query }) => {
@@ -37,7 +38,8 @@ export const docPlugin = (app: Elysia) => {
     )
     .get('/random_doc', async () => {
       const docId = 'solo-' + randomId()
-      return { docId }
+      const prompt = soloPrompts[Math.floor(Math.random() * soloPrompts.length)]
+      return { docId, prompt }
     })
     .get('/shared_doc', async ({ store }) => {
       const now = Date.now() / 1000 / 60
@@ -45,8 +47,10 @@ export const docPlugin = (app: Elysia) => {
         const docId = 'shared-' + randomId()
         store.sharedDocId = docId
         store.sharedDocTime = now
+        store.sharedDocPrompt =
+          sharedPrompts[Math.floor(Math.random() * sharedPrompts.length)]
       }
-      return { docId: store.sharedDocId }
+      return { docId: store.sharedDocId, prompt: store.sharedDocPrompt }
     })
     .get(
       '/list_doc',
