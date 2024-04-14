@@ -4,7 +4,7 @@ import { wsPub } from '.'
 import { delDoc, insertDoc, listAllDocs, setDocHidden } from './sql'
 
 const QUERY_PARAM_DOC = 'doc'
-const TIME_LIMIT = 0.5
+const TIME_LIMIT = 5
 
 const manager = new DocumentManager(process.env.YSWEET_URL)
 

@@ -89,6 +89,7 @@ export interface CustomEditorProps {
   editorHook: [Editor | undefined, (editor: Editor | undefined) => void]
   editHook: [boolean, (isEditing: boolean) => void]
   canvasName?: string
+  components?: Record<string, React.ComponentType | null>
   fullMode?: boolean
 }
 
@@ -98,6 +99,7 @@ export function CustomEditor({
   editorHook,
   editHook,
   canvasName,
+  components,
   fullMode,
 }: CustomEditorProps) {
   const [, state] = useGlobalState()
@@ -178,6 +180,7 @@ export function CustomEditor({
           HelpMenu: null,
           StylePanel: () => <CustomStylePanel />,
         }),
+        ...components,
       }}
     />
   )
