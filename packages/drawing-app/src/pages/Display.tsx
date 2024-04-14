@@ -4,6 +4,8 @@ import 'swiper/css'
 import 'swiper/css/effect-fade'
 // import 'swiper/css/effect-coverflow'
 // import 'swiper/css/free-mode'
+import toast from 'react-hot-toast'
+import { useWakeLock } from 'react-screen-wake-lock'
 import 'swiper/css/pagination'
 import { Autoplay, EffectFade, Mousewheel, Pagination } from 'swiper/modules'
 import { Swiper, SwiperRef, SwiperSlide } from 'swiper/react'
@@ -20,6 +22,11 @@ export default function DisplayPage() {
   const [ids, setIds] = useState<string[]>([])
   const swiperRef = useRef<SwiperRef>(null)
   const [event, { displayOn }] = api.useServerState()
+  const { request } = useWakeLock({
+    onRequest: () => toast('Screen Wake Lock: requested!'),
+    onError: () => toast.error('An error happened 💥'),
+    onRelease: () => toast('Screen Wake Lock: released!'),
+  })
 
   useLayoutEffect(() => {
     if (event !== 'list_update') return
@@ -107,7 +114,10 @@ export default function DisplayPage() {
       </Swiper>
       <button
         className='fixed bottom-4 inset-x-0 mx-auto w-10 h-10 bg-black opacity-0 z-50'
-        onClick={() => fscreen.requestFullscreen(document.body)}
+        onClick={() => {
+          fscreen.requestFullscreen(document.body)
+          request()
+        }}
       />
       <div
         className={`fixed inset-0 z-[9999] bg-black flex items-center justify-center ${displayOn === false ? '' : 'hidden'}`}
